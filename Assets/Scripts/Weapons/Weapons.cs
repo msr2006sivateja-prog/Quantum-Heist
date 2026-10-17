@@ -43,6 +43,7 @@ public class Weapon : MonoBehaviour
         Shoot();
     }
 
+    
     private void Shoot()
     {
         currentAmmo--;
@@ -51,20 +52,61 @@ public class Weapon : MonoBehaviour
             new Vector3(0.5f, 0.5f, 0f)
         );
 
+        Vector3 endPoint = ray.origin + ray.direction * range;
+
         if (Physics.Raycast(ray, out RaycastHit hit, range))
         {
+            endPoint = hit.point;
+
             Debug.Log($"Hit: {hit.collider.name}");
 
-            Health health = hit.collider.GetComponent<Health>();
+            TargetHealth targetHealth =
+                hit.collider.GetComponent<TargetHealth>();
 
-            if (health != null)
+            if (targetHealth != null)
             {
-                health.TakeDamage(damage);
+                targetHealth.TakeDamage(Mathf.RoundToInt(damage));
             }
         }
 
+        DrawTracer(ray.origin, endPoint);
+
         Debug.Log($"Ammo: {currentAmmo}/{magazineSize}");
     }
+
+    private void DrawTracer(Vector3 startPoint, Vector3 endPoint)
+    {
+        GameObject tracerObject = new GameObject("BulletTracer");
+
+        LineRenderer line = tracerObject.AddComponent<LineRenderer>();
+
+        Shader shader = Shader.Find("Sprites/Default");
+
+        if (shader == null)
+        {
+            Destroy(tracerObject);
+            return;
+        }
+
+        line.material = new Material(shader);
+        line.positionCount = 2;
+        line.useWorldSpace = true;
+
+        line.SetPosition(0, startPoint);
+        line.SetPosition(1, endPoint);
+
+        line.startWidth = 0.025f;
+        line.endWidth = 0.008f;
+
+        line.startColor = Color.yellow;
+        line.endColor = Color.red;
+
+        line.numCapVertices = 4;
+        line.numCornerVertices = 2;
+
+        Destroy(tracerObject, 0.06f);
+    }
+
 
     public void Reload()
     {
