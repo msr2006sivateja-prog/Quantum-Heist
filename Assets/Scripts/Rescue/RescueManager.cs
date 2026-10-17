@@ -6,12 +6,13 @@ using UnityEngine.InputSystem;
 
 public class RescueManager : NetworkBehaviour
 {
-    private static ulong activeRequesterId = ulong.MaxValue;
-
-    private readonly Dictionary<ulong, float> lastHelpRequestTime
-        = new Dictionary<ulong, float>();
-
+    private const ulong NoRequester = ulong.MaxValue;
     private const float HelpCooldown = 5f;
+
+    private static ulong activeRequesterId = NoRequester;
+
+    private readonly Dictionary<ulong, float> lastHelpRequestTime =
+        new Dictionary<ulong, float>();
 
     private void Update()
     {
@@ -26,6 +27,9 @@ public class RescueManager : NetworkBehaviour
 
         if (Keyboard.current.jKey.wasPressedThisFrame)
             AcknowledgeHelpServerRpc();
+
+        if (Keyboard.current.kKey.wasPressedThisFrame)
+            CancelHelpServerRpc();
     }
 
     [ServerRpc]
@@ -34,12 +38,17 @@ public class RescueManager : NetworkBehaviour
     {
         ulong requesterId = rpcParams.Receive.SenderClientId;
 
+        // Prevent repeated requests during the cooldown.
         if (lastHelpRequestTime.TryGetValue(
-            requesterId, out float lastRequest))
+                requesterId, out float lastRequest))
         {
             if (Time.time - lastRequest < HelpCooldown)
                 return;
         }
+
+        // Only allow one active HELP request at a time.
+        if (activeRequesterId != NoRequester)
+            return;
 
         lastHelpRequestTime[requesterId] = Time.time;
         activeRequesterId = requesterId;
@@ -53,17 +62,32 @@ public class RescueManager : NetworkBehaviour
     {
         ulong responderId = rpcParams.Receive.SenderClientId;
 
-        if (activeRequesterId == ulong.MaxValue)
+        if (activeRequesterId == NoRequester)
             return;
 
+        // A player cannot acknowledge their own request.
         if (responderId == activeRequesterId)
             return;
 
         ulong requesterId = activeRequesterId;
-        activeRequesterId = ulong.MaxValue;
+        activeRequesterId = NoRequester;
 
-        NotifyHelpAcknowledgedClientRpc(
-            requesterId, responderId);
+        NotifyHelpAcknowledgedClientRpc(requesterId, responderId);
+    }
+
+    [ServerRpc]
+    private void CancelHelpServerRpc(
+        ServerRpcParams rpcParams = default)
+    {
+        ulong requesterId = rpcParams.Receive.SenderClientId;
+
+        // Only the player who requested help can cancel it.
+        if (activeRequesterId != requesterId)
+            return;
+
+        activeRequesterId = NoRequester;
+
+        NotifyHelpCancelledClientRpc(requesterId);
     }
 
     [ClientRpc]
@@ -72,7 +96,10 @@ public class RescueManager : NetworkBehaviour
         Debug.Log($"RESCUE: Player {requesterId} requested HELP!");
 
         if (HelpNotificationUI.Instance != null)
-            HelpNotificationUI.Instance.ShowHelpRequest(requesterId);
+        {
+            HelpNotificationUI.Instance.ShowPersistentStatus(
+                $"PLAYER {requesterId} NEEDS HELP - WAITING FOR RESCUE");
+        }
     }
 
     [ClientRpc]
@@ -80,7 +107,7 @@ public class RescueManager : NetworkBehaviour
         ulong requesterId, ulong responderId)
     {
         Debug.Log(
-            $"RESCUE: Player {responderId} acknowledged " +
+            $"RESCUE: Player {responderId} accepted " +
             $"Player {requesterId}'s HELP request.");
 
         if (HelpNotificationUI.Instance != null)
@@ -88,5 +115,15 @@ public class RescueManager : NetworkBehaviour
             HelpNotificationUI.Instance.ShowMessage(
                 $"PLAYER {responderId} ACCEPTED PLAYER {requesterId}'S HELP");
         }
+    }
+
+    [ClientRpc]
+    private void NotifyHelpCancelledClientRpc(ulong requesterId)
+    {
+        Debug.Log(
+            $"RESCUE: Player {requesterId} cancelled their HELP request.");
+
+        if (HelpNotificationUI.Instance != null)
+            HelpNotificationUI.Instance.ClearStatus();
     }
 }
