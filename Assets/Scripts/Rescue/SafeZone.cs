@@ -21,6 +21,7 @@ public class SafeZone : MonoBehaviour
             return;
 
         playersInside.Add(inventory);
+        RescueManager.NotifySafeZoneEntered(inventory);
 
         Debug.Log("SAFE ZONE: Player entered the safe zone.");
     }

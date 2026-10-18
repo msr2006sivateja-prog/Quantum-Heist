@@ -10,9 +10,34 @@ public class RescueManager : NetworkBehaviour
     private const float HelpCooldown = 5f;
 
     private static ulong activeRequesterId = NoRequester;
+    private static ulong activeResponderId = NoRequester;
+    private static bool responderReachedSafeZone;
+
+    private static RescueManager serverInstance;
 
     private readonly Dictionary<ulong, float> lastHelpRequestTime =
         new Dictionary<ulong, float>();
+
+    public static bool IsRescueActive =>
+        activeRequesterId != NoRequester;
+
+    public static ulong ActiveRequesterId => activeRequesterId;
+    public static ulong ActiveResponderId => activeResponderId;
+
+    public static bool ResponderReachedSafeZone =>
+        responderReachedSafeZone;
+
+    public override void OnNetworkSpawn()
+    {
+        if (IsServer)
+            serverInstance = this;
+    }
+
+    public override void OnNetworkDespawn()
+    {
+        if (serverInstance == this)
+            serverInstance = null;
+    }
 
     private void Update()
     {
@@ -38,7 +63,6 @@ public class RescueManager : NetworkBehaviour
     {
         ulong requesterId = rpcParams.Receive.SenderClientId;
 
-        // Prevent repeated requests during the cooldown.
         if (lastHelpRequestTime.TryGetValue(
                 requesterId, out float lastRequest))
         {
@@ -46,12 +70,14 @@ public class RescueManager : NetworkBehaviour
                 return;
         }
 
-        // Only allow one active HELP request at a time.
         if (activeRequesterId != NoRequester)
             return;
 
-        lastHelpRequestTime[requesterId] = Time.time;
         activeRequesterId = requesterId;
+        activeResponderId = NoRequester;
+        responderReachedSafeZone = false;
+
+        lastHelpRequestTime[requesterId] = Time.time;
 
         NotifyHelpRequestedClientRpc(requesterId);
     }
@@ -65,14 +91,17 @@ public class RescueManager : NetworkBehaviour
         if (activeRequesterId == NoRequester)
             return;
 
-        // A player cannot acknowledge their own request.
         if (responderId == activeRequesterId)
             return;
 
-        ulong requesterId = activeRequesterId;
-        activeRequesterId = NoRequester;
+        if (activeResponderId != NoRequester)
+            return;
 
-        NotifyHelpAcknowledgedClientRpc(requesterId, responderId);
+        activeResponderId = responderId;
+        responderReachedSafeZone = false;
+
+        NotifyHelpAcknowledgedClientRpc(
+            activeRequesterId, responderId);
     }
 
     [ServerRpc]
@@ -81,13 +110,57 @@ public class RescueManager : NetworkBehaviour
     {
         ulong requesterId = rpcParams.Receive.SenderClientId;
 
-        // Only the player who requested help can cancel it.
         if (activeRequesterId != requesterId)
             return;
 
-        activeRequesterId = NoRequester;
+        ulong cancelledRequesterId = activeRequesterId;
 
-        NotifyHelpCancelledClientRpc(requesterId);
+        activeRequesterId = NoRequester;
+        activeResponderId = NoRequester;
+        responderReachedSafeZone = false;
+
+        NotifyHelpCancelledClientRpc(cancelledRequesterId);
+    }
+
+    // Called when a player enters the SafeZone trigger.
+    public static void NotifySafeZoneEntered(
+        PlayerInventory inventory)
+    {
+        if (inventory == null)
+            return;
+
+        if (NetworkManager.Singleton == null ||
+            !NetworkManager.Singleton.IsServer)
+            return;
+
+        NetworkObject playerObject =
+            inventory.GetComponentInParent<NetworkObject>();
+
+        if (playerObject == null)
+            return;
+
+        ulong playerId = playerObject.OwnerClientId;
+
+        if (activeRequesterId == NoRequester ||
+            activeResponderId == NoRequester)
+            return;
+
+        // Only the player who accepted HELP can activate this.
+        if (playerId != activeResponderId)
+            return;
+
+        if (responderReachedSafeZone)
+            return;
+
+        responderReachedSafeZone = true;
+
+        Debug.Log(
+            $"RESCUE: Responder {playerId} reached the SafeZone.");
+
+        if (serverInstance != null)
+        {
+            serverInstance.NotifySafeZoneReachedClientRpc(playerId);
+        }
     }
 
     [ClientRpc]
@@ -112,8 +185,22 @@ public class RescueManager : NetworkBehaviour
 
         if (HelpNotificationUI.Instance != null)
         {
-            HelpNotificationUI.Instance.ShowMessage(
-                $"PLAYER {responderId} ACCEPTED PLAYER {requesterId}'S HELP");
+            HelpNotificationUI.Instance.ShowPersistentStatus(
+                $"PLAYER {responderId} ACCEPTED HELP - REACH THE SAFEZONE");
+        }
+    }
+
+    [ClientRpc]
+    private void NotifySafeZoneReachedClientRpc(ulong responderId)
+    {
+        Debug.Log(
+            $"RESCUE: Player {responderId} reached the SafeZone. " +
+            "Ready for timeline integration.");
+
+        if (HelpNotificationUI.Instance != null)
+        {
+            HelpNotificationUI.Instance.ShowPersistentStatus(
+                $"PLAYER {responderId} REACHED THE SAFEZONE");
         }
     }
 
