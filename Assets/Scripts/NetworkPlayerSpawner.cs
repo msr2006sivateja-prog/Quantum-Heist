@@ -80,6 +80,10 @@ public class NetworkPlayerSpawner : MonoBehaviour
         }
 
         netObj.SpawnAsPlayerObject(clientId, true);
+        netObj.transform.SetPositionAndRotation(
+            spawn.position,
+            spawn.rotation
+        );
         Debug.Log($"[Spawner] Actual spawned position for {clientId}: {netObj.transform.position}");
         Debug.Log($"[Spawner] SUCCESS: Client {clientId} spawned at {spawn.position}");
     }
