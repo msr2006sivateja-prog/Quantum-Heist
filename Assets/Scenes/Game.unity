@@ -2274,7 +2274,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 108db438a0d195047935a03245c8abd3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NetworkPlayerSpawner
-  playerPrefab: {fileID: 8033455830245931351, guid: 611445d47cb64d247a1a4212fbeb1be1, type: 3}
+  playerPrefab: {fileID: 0}
   dimension1Spawn: {fileID: 1468479218}
   dimension2Spawn: {fileID: 1252863953}
 --- !u!1 &1121038710 stripped
@@ -2385,7 +2385,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1252863953}
   m_Layer: 0
-  m_Name: Dim2_SpawnPoint
+  m_Name: Dimension2Spawn
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2590,7 +2590,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1468479218}
   m_Layer: 0
-  m_Name: Dim1_SpawnPoint
+  m_Name: Dimension1Spawn
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3697,7 +3697,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 83f6118bf1ac446478019893a36ec67c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::QuantumRelayManager
-  joinCode: 
+  joinCode: BFTP6K
 --- !u!1 &2123554371
 GameObject:
   m_ObjectHideFlags: 0
