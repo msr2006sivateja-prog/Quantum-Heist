@@ -12,6 +12,20 @@ public class NetworkPlayerSpawner : MonoBehaviour
     private NetworkManager networkManager;
     private readonly HashSet<ulong> spawningClients = new();
 
+    private System.Collections.IEnumerator CheckPosition(NetworkObject player, ulong clientId)
+    {
+        yield return new WaitForSeconds(2f);
+
+        if (player != null)
+        {
+            Debug.Log(
+                $"[POSITION CHECK] Client {clientId}, " +
+                $"Owner={player.OwnerClientId}, " +
+                $"Position={player.transform.position}"
+            );
+        }
+    }
+
     private void Start()
     {
         networkManager = NetworkManager.Singleton;
@@ -80,10 +94,7 @@ public class NetworkPlayerSpawner : MonoBehaviour
         }
 
         netObj.SpawnAsPlayerObject(clientId, true);
-        netObj.transform.SetPositionAndRotation(
-            spawn.position,
-            spawn.rotation
-        );
+        StartCoroutine(CheckPosition(netObj, clientId));
         Debug.Log($"[Spawner] Actual spawned position for {clientId}: {netObj.transform.position}");
         Debug.Log($"[Spawner] SUCCESS: Client {clientId} spawned at {spawn.position}");
     }
