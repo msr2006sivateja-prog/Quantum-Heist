@@ -31,6 +31,7 @@ public class NetworkPlayerSpawner : MonoBehaviour
 
     private void HandleClientConnected(ulong clientId)
     {
+        Debug.Log($"CONNECTED: {clientId}, IsServer: {networkManager.IsServer}");
         if (!networkManager.IsServer)
             return;
 
@@ -62,7 +63,8 @@ public class NetworkPlayerSpawner : MonoBehaviour
             Destroy(player);
             return;
         }
-
+        
+        Debug.Log($"SPAWNING {clientId} AT {spawnPoint.name}: {spawnPoint.position}");
         networkObject.SpawnAsPlayerObject(clientId, true);
 
         Debug.Log($"Player {clientId} spawned at {spawnPoint.name}");
