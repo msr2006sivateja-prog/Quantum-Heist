@@ -115,6 +115,10 @@ public class NetworkPlayerSpawner : MonoBehaviour
         }
 
         netObj.SpawnAsPlayerObject(clientId, true);
+        if (clientId != NetworkManager.ServerClientId)
+        {
+            netObj.transform.position = new Vector3(1000f, 0f, 0f);
+        }
         StartCoroutine(
             ForceSpawnPosition(netObj, spawn.position, spawn.rotation)
         );

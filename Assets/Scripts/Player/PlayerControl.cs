@@ -30,6 +30,7 @@ public class PlayerController : NetworkBehaviour
             audioListener = cameraPivot.GetComponentInChildren<AudioListener>(true);
     }
 
+    
     public override void OnNetworkSpawn()
     {
         bool isLocalPlayer = IsOwner;
@@ -51,7 +52,14 @@ public class PlayerController : NetworkBehaviour
 
         if (playerCamera != null)
             playerCamera.enabled = isLocalPlayer;
+
+        // Force every non-host-owned player to the second dimension.
+        if (IsOwner && OwnerClientId != NetworkManager.ServerClientId)
+        {
+            transform.position = new Vector3(1000f, 0f, 0f);
+        }
     }
+
 
     public override void OnNetworkDespawn()
     {
