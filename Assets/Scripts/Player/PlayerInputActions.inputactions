@@ -115,6 +115,61 @@
                     "isPartOfComposite": true
                 },
                 {
+                    "name": "2D Vector",
+                    "id": "654000dc-48a9-4a91-bae9-4853391f447c",
+                    "path": "2DVector",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Move",
+                    "isComposite": true,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "up",
+                    "id": "f5e8b0a4-f955-45f1-a5dd-973e123d0f2c",
+                    "path": "",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Move",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "down",
+                    "id": "391a6374-007c-42f5-8e94-94394ee256f3",
+                    "path": "",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Move",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "left",
+                    "id": "f3b1e3b5-8209-498c-b142-61e2be0a18b0",
+                    "path": "",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Move",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "right",
+                    "id": "8bd3fae9-6f70-49f5-8984-db2570bb5d5b",
+                    "path": "",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Move",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
                     "name": "",
                     "id": "1531afeb-2854-41e8-9242-a5fab3056eb6",
                     "path": "<Mouse>/delta",
