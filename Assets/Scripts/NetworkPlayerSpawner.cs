@@ -26,6 +26,27 @@ public class NetworkPlayerSpawner : MonoBehaviour
         }
     }
 
+    
+    private System.Collections.IEnumerator ForceSpawnPosition(
+        NetworkObject player, Vector3 targetPosition, Quaternion targetRotation)
+    {
+        // Reapply the intended position for several frames after spawning.
+        for (int i = 0; i < 10; i++)
+        {
+            if (player == null)
+                yield break;
+
+            player.transform.SetPositionAndRotation(targetPosition, targetRotation);
+            yield return new WaitForFixedUpdate();
+        }
+
+        if (player != null)
+        {
+            Debug.Log($"[Spawner] Final forced position: {player.transform.position}");
+        }
+    }
+
+
     private void Start()
     {
         networkManager = NetworkManager.Singleton;
@@ -94,6 +115,9 @@ public class NetworkPlayerSpawner : MonoBehaviour
         }
 
         netObj.SpawnAsPlayerObject(clientId, true);
+        StartCoroutine(
+            ForceSpawnPosition(netObj, spawn.position, spawn.rotation)
+        );
         StartCoroutine(CheckPosition(netObj, clientId));
         Debug.Log($"[Spawner] Actual spawned position for {clientId}: {netObj.transform.position}");
         Debug.Log($"[Spawner] SUCCESS: Client {clientId} spawned at {spawn.position}");
