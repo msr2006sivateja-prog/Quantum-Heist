@@ -1,6 +1,7 @@
 
 using UnityEngine;
 using Unity.Netcode;
+using System.Collections.Generic;
 
 public class NetworkPlayerSpawner : MonoBehaviour
 {
@@ -9,6 +10,7 @@ public class NetworkPlayerSpawner : MonoBehaviour
     [SerializeField] private Transform dimension2Spawn;
 
     private NetworkManager networkManager;
+    private readonly HashSet<ulong> spawningClients = new();
 
     private void Start()
     {
@@ -16,11 +18,18 @@ public class NetworkPlayerSpawner : MonoBehaviour
 
         if (networkManager == null)
         {
-            Debug.LogError("NetworkPlayerSpawner: NetworkManager not found.");
+            Debug.LogError("[Spawner] NetworkManager not found!");
             return;
         }
 
         networkManager.OnClientConnectedCallback += HandleClientConnected;
+        Debug.Log("[Spawner] Listener registered.");
+
+        if (networkManager.IsServer)
+        {
+            foreach (ulong clientId in networkManager.ConnectedClientsIds)
+                HandleClientConnected(clientId);
+        }
     }
 
     private void OnDestroy()
@@ -31,42 +40,46 @@ public class NetworkPlayerSpawner : MonoBehaviour
 
     private void HandleClientConnected(ulong clientId)
     {
-        Debug.Log($"CONNECTED: {clientId}, IsServer: {networkManager.IsServer}");
+        Debug.Log($"[Spawner] Connected: {clientId}, IsServer={networkManager.IsServer}");
+
         if (!networkManager.IsServer)
             return;
 
-        if (networkManager.ConnectedClients.ContainsKey(clientId) &&
-            networkManager.ConnectedClients[clientId].PlayerObject != null)
+        if (networkManager.ConnectedClients.TryGetValue(clientId, out var client) &&
+            client.PlayerObject != null)
+        {
+            Debug.Log($"[Spawner] Client {clientId} already has a player.");
+            return;
+        }
+
+        if (!spawningClients.Add(clientId))
             return;
 
-        Transform spawnPoint = clientId == NetworkManager.ServerClientId
+        Transform spawn = clientId == NetworkManager.ServerClientId
             ? dimension1Spawn
             : dimension2Spawn;
 
-        if (playerPrefab == null || spawnPoint == null)
+        if (playerPrefab == null || spawn == null)
         {
-            Debug.LogError("Assign the player prefab and both spawn points.");
+            Debug.LogError("[Spawner] Assign Player Prefab and both spawn points!");
+            spawningClients.Remove(clientId);
             return;
         }
 
-        GameObject player = Instantiate(
-            playerPrefab,
-            spawnPoint.position,
-            spawnPoint.rotation
-        );
+        Debug.Log($"[Spawner] Instantiating client {clientId} at {spawn.name}, position {spawn.position}");
 
-        NetworkObject networkObject = player.GetComponent<NetworkObject>();
+        GameObject player = Instantiate(playerPrefab, spawn.position, spawn.rotation);
+        NetworkObject netObj = player.GetComponent<NetworkObject>();
 
-        if (networkObject == null)
+        if (netObj == null)
         {
-            Debug.LogError("Player prefab needs a NetworkObject component.");
+            Debug.LogError("[Spawner] Player prefab has no NetworkObject!");
             Destroy(player);
+            spawningClients.Remove(clientId);
             return;
         }
-        
-        Debug.Log($"SPAWNING {clientId} AT {spawnPoint.name}: {spawnPoint.position}");
-        networkObject.SpawnAsPlayerObject(clientId, true);
 
-        Debug.Log($"Player {clientId} spawned at {spawnPoint.name}");
+        netObj.SpawnAsPlayerObject(clientId, true);
+        Debug.Log($"[Spawner] SUCCESS: Client {clientId} spawned at {spawn.position}");
     }
 }

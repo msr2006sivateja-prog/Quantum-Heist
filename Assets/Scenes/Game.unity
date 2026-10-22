@@ -2154,10 +2154,11 @@ MonoBehaviour:
   NetworkConfig:
     ProtocolVersion: 0
     NetworkTransport: {fileID: 1035774120}
-    PlayerPrefab: {fileID: 8033455830245931351, guid: 611445d47cb64d247a1a4212fbeb1be1, type: 3}
+    PlayerPrefab: {fileID: 0}
     Prefabs:
       NetworkPrefabsLists:
       - {fileID: 11400000, guid: 1a09c99a4e421fe49aaa70de00a1d153, type: 2}
+      - {fileID: 11400000, guid: 2c114911a718e22449d5e4a84eddc328, type: 2}
     TickRate: 30
     ClientConnectionBufferTimeout: 10
     ConnectionApproval: 0
@@ -2274,7 +2275,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 108db438a0d195047935a03245c8abd3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::NetworkPlayerSpawner
-  playerPrefab: {fileID: 0}
+  playerPrefab: {fileID: 8033455830245931351, guid: 611445d47cb64d247a1a4212fbeb1be1, type: 3}
   dimension1Spawn: {fileID: 1468479218}
   dimension2Spawn: {fileID: 1252863953}
 --- !u!1 &1121038710 stripped
