@@ -846,6 +846,9 @@ PrefabInstance:
     m_RemovedGameObjects: []
     m_AddedGameObjects:
     - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: d3d281272b6f25540af78f2afbc33aab, type: 3}
+      insertIndex: 0
+      addedObject: {fileID: 1311894149}
+    - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: d3d281272b6f25540af78f2afbc33aab, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1252863953}
     m_AddedComponents:
@@ -2701,6 +2704,110 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: -3315207527777479857, guid: d3d281272b6f25540af78f2afbc33aab, type: 3}
+--- !u!1001 &1311894146
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 476550548}
+    m_Modifications:
+    - target: {fileID: 642909989054810903, guid: a2e2a04d8921316448b92f30ce1d2ed5, type: 3}
+      propertyPath: m_Name
+      value: police_officer_2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4519163087755901188, guid: a2e2a04d8921316448b92f30ce1d2ed5, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4519163087755901188, guid: a2e2a04d8921316448b92f30ce1d2ed5, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4519163087755901188, guid: a2e2a04d8921316448b92f30ce1d2ed5, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4519163087755901188, guid: a2e2a04d8921316448b92f30ce1d2ed5, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4519163087755901188, guid: a2e2a04d8921316448b92f30ce1d2ed5, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4519163087755901188, guid: a2e2a04d8921316448b92f30ce1d2ed5, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4519163087755901188, guid: a2e2a04d8921316448b92f30ce1d2ed5, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4519163087755901188, guid: a2e2a04d8921316448b92f30ce1d2ed5, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4519163087755901188, guid: a2e2a04d8921316448b92f30ce1d2ed5, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4519163087755901188, guid: a2e2a04d8921316448b92f30ce1d2ed5, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5781857914803967102, guid: a2e2a04d8921316448b92f30ce1d2ed5, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: 425ce462068f2ec4ca08cab23ebd1ae2, type: 2}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 642909989054810903, guid: a2e2a04d8921316448b92f30ce1d2ed5, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1311894148}
+  m_SourcePrefab: {fileID: 100100000, guid: a2e2a04d8921316448b92f30ce1d2ed5, type: 3}
+--- !u!1 &1311894147 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 642909989054810903, guid: a2e2a04d8921316448b92f30ce1d2ed5, type: 3}
+  m_PrefabInstance: {fileID: 1311894146}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1311894148
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1311894147}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d410f98c347399d4ab7354022c1f21cc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PoliceAI
+  patrolPoints:
+  - {fileID: 338128787}
+  - {fileID: 1050344655}
+  - {fileID: 1988381714}
+  - {fileID: 723092090}
+  - {fileID: 1963717533}
+  - {fileID: 1649758312}
+  - {fileID: 1033640849}
+  - {fileID: 1184041976}
+  arrivalDistance: 1
+  waitAtPoint: 1.5
+  playerTag: Player
+  detectionRange: 8
+  losePlayerRange: 12
+  chaseSpeed: 5.5
+  patrolSpeed: 3
+  animator: {fileID: 0}
+  animationSpeedMultiplier: 1
+--- !u!4 &1311894149 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4519163087755901188, guid: a2e2a04d8921316448b92f30ce1d2ed5, type: 3}
+  m_PrefabInstance: {fileID: 1311894146}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1327743690 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: -6555196122380890974, guid: d3d281272b6f25540af78f2afbc33aab, type: 3}
