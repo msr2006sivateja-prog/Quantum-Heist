@@ -45,27 +45,30 @@ public class PoliceAI : MonoBehaviour
     {
         if (agent == null)
         {
-            Debug.LogError("PoliceAI: NavMeshAgent is missing!", this);
+            Debug.LogError(
+                "PoliceAI: NavMeshAgent is missing!", this);
             enabled = false;
             return;
         }
 
         if (patrolPoints == null || patrolPoints.Length == 0)
         {
-            Debug.LogError("PoliceAI: Assign patrol points!", this);
+            Debug.LogError(
+                "PoliceAI: Assign patrol points!", this);
             enabled = false;
             return;
         }
 
         if (!agent.isOnNavMesh)
         {
-            Debug.LogError("PoliceAI: Officer is not on the NavMesh!", this);
+            Debug.LogError(
+                "PoliceAI: Officer is not on the NavMesh!", this);
             enabled = false;
             return;
         }
 
         agent.speed = patrolSpeed;
-        FindPlayer();
+
         GoToCurrentPoint();
     }
 
@@ -74,31 +77,49 @@ public class PoliceAI : MonoBehaviour
         if (agent == null || !agent.isOnNavMesh)
             return;
 
-        if (player == null)
-            FindPlayer();
+        // Search for all players, not just the first one.
+        float searchRange = chasing
+            ? losePlayerRange
+            : detectionRange;
 
-        float distanceToPlayer = player != null
-            ? Vector3.Distance(transform.position, player.position)
-            : Mathf.Infinity;
+        Transform closestPlayer = FindClosestPlayer(searchRange);
 
-        // Start chasing when the player is close enough.
-        if (!chasing && distanceToPlayer <= detectionRange)
+        if (closestPlayer != null)
         {
-            chasing = true;
-            waiting = false;
-            agent.isStopped = false;
-            agent.speed = chaseSpeed;
+            if (!chasing)
+            {
+                chasing = true;
+                waiting = false;
 
-            Debug.Log("Police spotted the player! Chasing.", this);
+                agent.isStopped = false;
+                agent.speed = chaseSpeed;
+
+                Debug.Log(
+                    "Police spotted a player! Chasing: " +
+                    closestPlayer.name, this);
+            }
+
+            // Switch to the closest available player.
+            if (player != closestPlayer)
+            {
+                player = closestPlayer;
+
+                Debug.Log(
+                    "Police target changed to: " +
+                    player.name, this);
+            }
         }
-
-        // Stop chasing when the player escapes far enough.
-        if (chasing && distanceToPlayer >= losePlayerRange)
+        else if (chasing)
         {
+            // No player remains within the allowed chase range.
             chasing = false;
+            player = null;
+
             agent.speed = patrolSpeed;
 
-            Debug.Log("Police lost the player. Returning to patrol.", this);
+            Debug.Log(
+                "Police lost all players. Returning to patrol.",
+                this);
 
             GoToCurrentPoint();
         }
@@ -116,6 +137,43 @@ public class PoliceAI : MonoBehaviour
         UpdateAnimation(agent.velocity.magnitude);
     }
 
+    private Transform FindClosestPlayer(float maxDistance)
+    {
+        GameObject[] players =
+            GameObject.FindGameObjectsWithTag(playerTag);
+
+        Transform closest = null;
+        float closestDistance = maxDistance;
+
+        foreach (GameObject playerObject in players)
+        {
+            if (playerObject == null ||
+                !playerObject.activeInHierarchy)
+            {
+                continue;
+            }
+
+            // Ignore the police itself if it was tagged accidentally.
+            if (playerObject.transform == transform ||
+                playerObject.transform.IsChildOf(transform))
+            {
+                continue;
+            }
+
+            float distance = Vector3.Distance(
+                transform.position,
+                playerObject.transform.position);
+
+            if (distance < closestDistance)
+            {
+                closestDistance = distance;
+                closest = playerObject.transform;
+            }
+        }
+
+        return closest;
+    }
+
     private void UpdatePatrol()
     {
         if (waiting)
@@ -125,6 +183,7 @@ public class PoliceAI : MonoBehaviour
             if (waitTimer <= 0f)
             {
                 waiting = false;
+
                 currentPointIndex =
                     (currentPointIndex + 1) % patrolPoints.Length;
 
@@ -144,22 +203,19 @@ public class PoliceAI : MonoBehaviour
         }
     }
 
-    private void FindPlayer()
-    {
-        GameObject playerObject = GameObject.FindGameObjectWithTag(playerTag);
-
-        if (playerObject != null)
-            player = playerObject.transform;
-    }
-
     private void GoToCurrentPoint()
     {
+        if (patrolPoints == null ||
+            patrolPoints.Length == 0)
+        {
+            return;
+        }
+
         if (patrolPoints[currentPointIndex] == null)
         {
             Debug.LogWarning(
                 $"PoliceAI: Patrol point {currentPointIndex} is empty!",
-                this
-            );
+                this);
 
             waiting = true;
             waitTimer = waitAtPoint;
@@ -168,7 +224,10 @@ public class PoliceAI : MonoBehaviour
         }
 
         agent.isStopped = false;
-        agent.SetDestination(patrolPoints[currentPointIndex].position);
+        agent.speed = patrolSpeed;
+
+        agent.SetDestination(
+            patrolPoints[currentPointIndex].position);
     }
 
     private void UpdateAnimation(float currentSpeed)
@@ -182,7 +241,6 @@ public class PoliceAI : MonoBehaviour
 
         animator.SetFloat(
             SpeedHash,
-            normalizedSpeed * animationSpeedMultiplier
-        );
+            normalizedSpeed * animationSpeedMultiplier);
     }
 }
