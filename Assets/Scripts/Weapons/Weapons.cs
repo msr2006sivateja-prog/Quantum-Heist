@@ -14,6 +14,7 @@ public class Weapon : MonoBehaviour
 
     [Header("References")]
     [SerializeField] private Camera playerCamera;
+    [SerializeField] private Animator playerAnimator;
 
     private int currentAmmo;
     private float nextFireTime;
@@ -22,6 +23,13 @@ public class Weapon : MonoBehaviour
     private void Awake()
     {
         currentAmmo = magazineSize;
+
+        // Find the soldier's Animator if it hasn't been assigned.
+        if (playerAnimator == null)
+            playerAnimator = GetComponentInChildren<Animator>();
+
+        if (playerAnimator == null)
+            playerAnimator = GetComponentInParent<Animator>();
     }
 
     public void TryShoot()
@@ -43,10 +51,26 @@ public class Weapon : MonoBehaviour
         Shoot();
     }
 
-    
     private void Shoot()
     {
         currentAmmo--;
+
+        // Trigger the soldier's shooting animation.
+        if (playerAnimator != null)
+        {
+            Debug.Log("Weapon Animator: " + playerAnimator.name);
+            playerAnimator.SetTrigger("Shoot");
+        }
+        else
+        {
+            Debug.LogError("Weapon Animator is NULL!");
+        }
+
+        if (playerCamera == null)
+        {
+            Debug.LogWarning("Weapon: Player Camera is not assigned.", this);
+            return;
+        }
 
         Ray ray = playerCamera.ViewportPointToRay(
             new Vector3(0.5f, 0.5f, 0f)
@@ -64,9 +88,7 @@ public class Weapon : MonoBehaviour
                 hit.collider.GetComponent<TargetHealth>();
 
             if (targetHealth != null)
-            {
                 targetHealth.TakeDamage(Mathf.RoundToInt(damage));
-            }
         }
 
         DrawTracer(ray.origin, endPoint);
@@ -107,7 +129,6 @@ public class Weapon : MonoBehaviour
         Destroy(tracerObject, 0.06f);
     }
 
-
     public void Reload()
     {
         if (isReloading)
@@ -123,13 +144,20 @@ public class Weapon : MonoBehaviour
     {
         isReloading = true;
 
+        // Start the reload animation.
+        if (playerAnimator != null)
+            playerAnimator.SetBool("Reloading", true);
+
         Debug.Log("Reloading...");
 
         yield return new WaitForSeconds(reloadTime);
 
         currentAmmo = magazineSize;
-
         isReloading = false;
+
+        // Return to the normal animation state.
+        if (playerAnimator != null)
+            playerAnimator.SetBool("Reloading", false);
 
         Debug.Log("Reload complete!");
     }

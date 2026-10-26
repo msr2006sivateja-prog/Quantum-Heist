@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 67caa4b7febf10e41bb09b279569fbfc
+ShaderImporter:
+  externalObjects: {}
+  defaultTextures: []
+  nonModifiableTextures: []
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 177761
+  packageName: Policeofficer
+  packageVersion: 1.0
+  assetPath: Assets/Police_officer/Materials/Standard(2sides).shader
+  uploadId: 387026
