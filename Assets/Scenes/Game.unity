@@ -2279,7 +2279,7 @@ MonoBehaviour:
   m_ProtocolType: 0
   m_UseWebSockets: 0
   m_UseEncryption: 0
-  m_MaxPacketQueueSize: 128
+  m_MaxPacketQueueSize: 512
   m_MaxPayloadSize: 6144
   m_HeartbeatTimeoutMS: 500
   m_ConnectTimeoutMS: 1000
@@ -4282,6 +4282,13 @@ MonoBehaviour:
   - {fileID: 1184041976}
   arrivalDistance: 1
   waitAtPoint: 1.5
+  playerTag: Player
+  detectionRange: 8
+  losePlayerRange: 12
+  chaseSpeed: 5.5
+  patrolSpeed: 3
+  animator: {fileID: 0}
+  animationSpeedMultiplier: 1
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
