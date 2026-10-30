@@ -154,6 +154,7 @@ public class PlayerController : NetworkBehaviour
     [ServerRpc]
     private void SendLookInputServerRpc(float mouseX)
     {
+        Debug.Log("Server received mouse X: " + mouseX);
         float rotationAmount = mouseX * lookSensitivity;
 
         transform.Rotate(Vector3.up * rotationAmount);
