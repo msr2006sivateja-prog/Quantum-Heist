@@ -34,6 +34,8 @@ public class PlayerController : NetworkBehaviour
     private Vector2 moveInput;
     private Vector2 lookInput;
 
+    private float accumulatedMouseX;
+
     private const float InputSendInterval = 1f / 30f;
     private float inputSendTimer;
 
@@ -122,14 +124,22 @@ public class PlayerController : NetworkBehaviour
             HandleShooting();
             HandleReload();
 
+            // Send horizontal mouse movement every frame.
+            accumulatedMouseX += lookInput.x;
+
+            if (Mathf.Abs(accumulatedMouseX) > 0.001f)
+            {
+                SendLookInputServerRpc(accumulatedMouseX);
+                accumulatedMouseX = 0f;
+            }
+
+            // Send movement input at 30 updates per second.
             inputSendTimer += Time.deltaTime;
 
             if (inputSendTimer >= InputSendInterval)
             {
                 inputSendTimer = 0f;
-
                 SendMovementInputServerRpc(moveInput);
-                SendLookInputServerRpc(lookInput.x);
             }
         }
 
@@ -142,6 +152,7 @@ public class PlayerController : NetworkBehaviour
     private void ReadInput()
     {
         moveInput = inputActions.Player.Move.ReadValue<Vector2>();
+
         lookInput = inputActions.Player.Look.ReadValue<Vector2>();
     }
 
@@ -154,10 +165,14 @@ public class PlayerController : NetworkBehaviour
     [ServerRpc]
     private void SendLookInputServerRpc(float mouseX)
     {
-        Debug.Log("Server received mouse X: " + mouseX);
-        float rotationAmount = mouseX * lookSensitivity;
+        if (Mathf.Abs(mouseX) > 0.001f)
+        {
+            Debug.Log("Server received mouse X: " + mouseX);
 
-        transform.Rotate(Vector3.up * rotationAmount);
+            float rotationAmount = mouseX * lookSensitivity;
+
+            transform.Rotate(Vector3.up * rotationAmount);
+        }
     }
 
     private void UpdateMovement()
@@ -207,7 +222,8 @@ public class PlayerController : NetworkBehaviour
 
     private void HandleAiming()
     {
-        bool isAiming = inputActions.Player.Aim.IsPressed();
+        bool isAiming =
+            inputActions.Player.Aim.IsPressed();
 
         if (playerAnimator != null)
             playerAnimator.SetBool("Aiming", isAiming);
