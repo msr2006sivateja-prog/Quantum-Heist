@@ -34,10 +34,7 @@ public class PlayerController : NetworkBehaviour
     private Vector2 moveInput;
     private Vector2 lookInput;
 
-    private bool isAiming;
-    private bool isShooting;
-
-    private static readonly float InputSendInterval = 1f / 30f;
+    private const float InputSendInterval = 1f / 30f;
     private float inputSendTimer;
 
     private void Awake()
@@ -119,6 +116,7 @@ public class PlayerController : NetworkBehaviour
         if (IsOwner)
         {
             ReadInput();
+
             HandleLook();
             HandleAiming();
             HandleShooting();
@@ -129,7 +127,9 @@ public class PlayerController : NetworkBehaviour
             if (inputSendTimer >= InputSendInterval)
             {
                 inputSendTimer = 0f;
+
                 SendMovementInputServerRpc(moveInput);
+                SendLookInputServerRpc(lookInput.x);
             }
         }
 
@@ -151,6 +151,14 @@ public class PlayerController : NetworkBehaviour
         moveInput = Vector2.ClampMagnitude(input, 1f);
     }
 
+    [ServerRpc]
+    private void SendLookInputServerRpc(float mouseX)
+    {
+        float rotationAmount = mouseX * lookSensitivity;
+
+        transform.Rotate(Vector3.up * rotationAmount);
+    }
+
     private void UpdateMovement()
     {
         if (controller == null || !controller.enabled)
@@ -164,7 +172,9 @@ public class PlayerController : NetworkBehaviour
 
         direction = transform.TransformDirection(direction);
 
-        controller.Move(direction * moveSpeed * Time.deltaTime);
+        controller.Move(
+            direction * moveSpeed * Time.deltaTime
+        );
 
         if (playerAnimator != null)
         {
@@ -180,10 +190,7 @@ public class PlayerController : NetworkBehaviour
         if (cameraPivot == null)
             return;
 
-        float mouseX = lookInput.x * lookSensitivity;
         float mouseY = lookInput.y * lookSensitivity;
-
-        transform.Rotate(Vector3.up * mouseX);
 
         cameraPitch -= mouseY;
 
@@ -199,7 +206,7 @@ public class PlayerController : NetworkBehaviour
 
     private void HandleAiming()
     {
-        isAiming = inputActions.Player.Aim.IsPressed();
+        bool isAiming = inputActions.Player.Aim.IsPressed();
 
         if (playerAnimator != null)
             playerAnimator.SetBool("Aiming", isAiming);
@@ -220,8 +227,11 @@ public class PlayerController : NetworkBehaviour
 
     private void HandleShooting()
     {
-        if (weapon != null && inputActions.Player.Shoot.IsPressed())
+        if (weapon != null &&
+            inputActions.Player.Shoot.IsPressed())
+        {
             weapon.TryShoot();
+        }
     }
 
     private void HandleReload()
