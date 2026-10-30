@@ -6,8 +6,12 @@ public class PoliceAI : MonoBehaviour
 {
     [Header("Patrol")]
     [SerializeField] private Transform[] patrolPoints;
-    [SerializeField] private float arrivalDistance = 1.0f;
+    [SerializeField] private float arrivalDistance = 1f;
     [SerializeField] private float waitAtPoint = 1.5f;
+
+    [Header("Bank Detection")]
+    [SerializeField] private Transform bankDetectionCenter;
+    [SerializeField] private float bankDetectionRadius = 100f;
 
     [Header("Player Detection")]
     [SerializeField] private string playerTag = "Player";
@@ -16,17 +20,18 @@ public class PoliceAI : MonoBehaviour
 
     [Header("Chase")]
     [SerializeField] private float chaseSpeed = 5.5f;
-    [SerializeField] private float patrolSpeed = 3.0f;
+    [SerializeField] private float patrolSpeed = 3f;
 
     [Header("Animation")]
     [SerializeField] private Animator animator;
-    [SerializeField] private float animationSpeedMultiplier = 1.0f;
+    [SerializeField] private float animationSpeedMultiplier = 1f;
 
     private NavMeshAgent agent;
     private Transform player;
 
     private int currentPointIndex;
     private float waitTimer;
+
     private bool waiting;
     private bool chasing;
 
@@ -45,30 +50,34 @@ public class PoliceAI : MonoBehaviour
     {
         if (agent == null)
         {
-            Debug.LogError(
-                "PoliceAI: NavMeshAgent is missing!", this);
+            Debug.LogError("PoliceAI: NavMeshAgent missing!", this);
             enabled = false;
             return;
         }
 
         if (patrolPoints == null || patrolPoints.Length == 0)
         {
+            Debug.LogError("PoliceAI: Assign patrol points!", this);
+            enabled = false;
+            return;
+        }
+
+        if (bankDetectionCenter == null)
+        {
             Debug.LogError(
-                "PoliceAI: Assign patrol points!", this);
+                "PoliceAI: Assign Bank Detection Center!", this);
             enabled = false;
             return;
         }
 
         if (!agent.isOnNavMesh)
         {
-            Debug.LogError(
-                "PoliceAI: Officer is not on the NavMesh!", this);
+            Debug.LogError("PoliceAI: Officer is not on NavMesh!", this);
             enabled = false;
             return;
         }
 
         agent.speed = patrolSpeed;
-
         GoToCurrentPoint();
     }
 
@@ -77,7 +86,6 @@ public class PoliceAI : MonoBehaviour
         if (agent == null || !agent.isOnNavMesh)
             return;
 
-        // Search for all players, not just the first one.
         float searchRange = chasing
             ? losePlayerRange
             : detectionRange;
@@ -94,24 +102,13 @@ public class PoliceAI : MonoBehaviour
                 agent.isStopped = false;
                 agent.speed = chaseSpeed;
 
-                Debug.Log(
-                    "Police spotted a player! Chasing: " +
-                    closestPlayer.name, this);
+                Debug.Log("Police spotted a player!", this);
             }
 
-            // Switch to the closest available player.
-            if (player != closestPlayer)
-            {
-                player = closestPlayer;
-
-                Debug.Log(
-                    "Police target changed to: " +
-                    player.name, this);
-            }
+            player = closestPlayer;
         }
         else if (chasing)
         {
-            // No player remains within the allowed chase range.
             chasing = false;
             player = null;
 
@@ -149,25 +146,27 @@ public class PoliceAI : MonoBehaviour
         {
             if (playerObject == null ||
                 !playerObject.activeInHierarchy)
-            {
                 continue;
-            }
 
-            // Ignore the police itself if it was tagged accidentally.
-            if (playerObject.transform == transform ||
-                playerObject.transform.IsChildOf(transform))
-            {
+            Transform candidate = playerObject.transform;
+
+            // Ignore players outside this bank's area.
+            float bankDistance = Vector3.Distance(
+                bankDetectionCenter.position,
+                candidate.position);
+
+            if (bankDistance > bankDetectionRadius)
                 continue;
-            }
 
+            // Check distance from this police officer.
             float distance = Vector3.Distance(
                 transform.position,
-                playerObject.transform.position);
+                candidate.position);
 
             if (distance < closestDistance)
             {
                 closestDistance = distance;
-                closest = playerObject.transform;
+                closest = candidate;
             }
         }
 
@@ -205,23 +204,8 @@ public class PoliceAI : MonoBehaviour
 
     private void GoToCurrentPoint()
     {
-        if (patrolPoints == null ||
-            patrolPoints.Length == 0)
-        {
-            return;
-        }
-
         if (patrolPoints[currentPointIndex] == null)
-        {
-            Debug.LogWarning(
-                $"PoliceAI: Patrol point {currentPointIndex} is empty!",
-                this);
-
-            waiting = true;
-            waitTimer = waitAtPoint;
-            agent.isStopped = true;
             return;
-        }
 
         agent.isStopped = false;
         agent.speed = patrolSpeed;
@@ -242,5 +226,17 @@ public class PoliceAI : MonoBehaviour
         animator.SetFloat(
             SpeedHash,
             normalizedSpeed * animationSpeedMultiplier);
+    }
+
+    private void OnDrawGizmosSelected()
+    {
+        if (bankDetectionCenter == null)
+            return;
+
+        Gizmos.color = Color.cyan;
+
+        Gizmos.DrawWireSphere(
+            bankDetectionCenter.position,
+            bankDetectionRadius);
     }
 }

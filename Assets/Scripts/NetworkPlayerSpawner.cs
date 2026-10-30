@@ -5,47 +5,16 @@ using System.Collections.Generic;
 
 public class NetworkPlayerSpawner : MonoBehaviour
 {
+    [Header("Player Settings")]
     [SerializeField] private GameObject playerPrefab;
+
+    [Header("Dimension Spawn Points")]
     [SerializeField] private Transform dimension1Spawn;
     [SerializeField] private Transform dimension2Spawn;
 
     private NetworkManager networkManager;
+
     private readonly HashSet<ulong> spawningClients = new();
-
-    private System.Collections.IEnumerator CheckPosition(NetworkObject player, ulong clientId)
-    {
-        yield return new WaitForSeconds(2f);
-
-        if (player != null)
-        {
-            Debug.Log(
-                $"[POSITION CHECK] Client {clientId}, " +
-                $"Owner={player.OwnerClientId}, " +
-                $"Position={player.transform.position}"
-            );
-        }
-    }
-
-    
-    private System.Collections.IEnumerator ForceSpawnPosition(
-        NetworkObject player, Vector3 targetPosition, Quaternion targetRotation)
-    {
-        // Reapply the intended position for several frames after spawning.
-        for (int i = 0; i < 10; i++)
-        {
-            if (player == null)
-                yield break;
-
-            player.transform.SetPositionAndRotation(targetPosition, targetRotation);
-            yield return new WaitForFixedUpdate();
-        }
-
-        if (player != null)
-        {
-            Debug.Log($"[Spawner] Final forced position: {player.transform.position}");
-        }
-    }
-
 
     private void Start()
     {
@@ -58,72 +27,134 @@ public class NetworkPlayerSpawner : MonoBehaviour
         }
 
         networkManager.OnClientConnectedCallback += HandleClientConnected;
+
         Debug.Log("[Spawner] Listener registered.");
 
         if (networkManager.IsServer)
         {
             foreach (ulong clientId in networkManager.ConnectedClientsIds)
+            {
                 HandleClientConnected(clientId);
+            }
         }
     }
 
     private void OnDestroy()
     {
         if (networkManager != null)
+        {
             networkManager.OnClientConnectedCallback -= HandleClientConnected;
+        }
     }
 
     private void HandleClientConnected(ulong clientId)
     {
-        Debug.Log($"[Spawner] Connected: {clientId}, IsServer={networkManager.IsServer}");
-
-        if (!networkManager.IsServer)
+        if (networkManager == null || !networkManager.IsServer)
             return;
 
-        if (networkManager.ConnectedClients.TryGetValue(clientId, out var client) &&
+        Transform spawnPoint =
+            clientId == NetworkManager.ServerClientId
+                ? dimension1Spawn
+                : dimension2Spawn;
+
+        if (spawnPoint == null)
+        {
+            Debug.LogError(
+                $"[Spawner] Spawn point missing for client {clientId}!"
+            );
+            return;
+        }
+
+        Debug.Log(
+            $"[Spawner] Client {clientId} selected {spawnPoint.name} " +
+            $"at {spawnPoint.position}"
+        );
+
+        // Check whether this client already has a player.
+        if (networkManager.ConnectedClients.TryGetValue(
+                clientId, out var client) &&
             client.PlayerObject != null)
         {
-            Debug.Log($"[Spawner] Client {clientId} already has a player.");
+            Debug.Log(
+                $"[Spawner] Client {clientId} already has a player. " +
+                "Correcting its spawn position."
+            );
+
+            MovePlayerToSpawn(
+                client.PlayerObject,
+                spawnPoint
+            );
+
             return;
         }
 
         if (!spawningClients.Add(clientId))
             return;
 
-        Transform spawn = clientId == NetworkManager.ServerClientId
-            ? dimension1Spawn
-            : dimension2Spawn;
-
-        if (playerPrefab == null || spawn == null)
+        if (playerPrefab == null)
         {
-            Debug.LogError("[Spawner] Assign Player Prefab and both spawn points!");
+            Debug.LogError("[Spawner] Player Prefab is missing!");
             spawningClients.Remove(clientId);
             return;
         }
 
-        Debug.Log($"[Spawner] Instantiating client {clientId} at {spawn.name}, position {spawn.position}");
+        GameObject player = Instantiate(
+            playerPrefab,
+            spawnPoint.position,
+            spawnPoint.rotation
+        );
 
-        GameObject player = Instantiate(playerPrefab, spawn.position, spawn.rotation);
-        NetworkObject netObj = player.GetComponent<NetworkObject>();
+        NetworkObject networkObject =
+            player.GetComponent<NetworkObject>();
 
-        if (netObj == null)
+        if (networkObject == null)
         {
-            Debug.LogError("[Spawner] Player prefab has no NetworkObject!");
+            Debug.LogError(
+                "[Spawner] Player prefab has no NetworkObject!"
+            );
+
             Destroy(player);
             spawningClients.Remove(clientId);
             return;
         }
 
-        netObj.SpawnAsPlayerObject(clientId, true);
-        if (clientId != NetworkManager.ServerClientId)
-        {
-            netObj.transform.position = new Vector3(1000f, 0f, 0f);
-        }
-        StartCoroutine(
-            ForceSpawnPosition(netObj, spawn.position, spawn.rotation)
+        networkObject.SpawnAsPlayerObject(clientId, true);
+
+        Debug.Log(
+            $"[Spawner] SUCCESS: Client {clientId} spawned at " +
+            $"{spawnPoint.name}, position {spawnPoint.position}"
         );
-        StartCoroutine(CheckPosition(netObj, clientId));
-        Debug.Log($"[Spawner] Actual spawned position for {clientId}: {netObj.transform.position}");
-        Debug.Log($"[Spawner] SUCCESS: Client {clientId} spawned at {spawn.position}");
+    }
+
+    private void MovePlayerToSpawn(
+        NetworkObject player,
+        Transform spawnPoint)
+    {
+        if (player == null || spawnPoint == null)
+            return;
+
+        // Temporarily disable CharacterControllers while teleporting.
+        CharacterController[] controllers =
+            player.GetComponentsInChildren<CharacterController>(true);
+
+        foreach (CharacterController controller in controllers)
+        {
+            controller.enabled = false;
+        }
+
+        player.transform.SetPositionAndRotation(
+            spawnPoint.position,
+            spawnPoint.rotation
+        );
+
+        foreach (CharacterController controller in controllers)
+        {
+            controller.enabled = true;
+        }
+
+        Debug.Log(
+            $"[Spawner] Corrected player position: " +
+            $"{player.transform.position}"
+        );
     }
 }
