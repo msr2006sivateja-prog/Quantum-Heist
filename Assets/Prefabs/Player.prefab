@@ -288,6 +288,7 @@ GameObject:
   - component: {fileID: 2013027493609329852}
   - component: {fileID: 8749878210799021496}
   - component: {fileID: 3843356492668726958}
+  - component: {fileID: 1932625960822800626}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -418,7 +419,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 642892355
+  GlobalObjectIdHash: 273921678
   InScenePlacedSourceGlobalObjectIdHash: 0
   m_InScenePlacedDisabledByDefault: 0
   DeferredDespawnTick: 0
@@ -551,6 +552,21 @@ MonoBehaviour:
   SwitchTransformSpaceWhenParented: 0
   Interpolate: 1
   SlerpPosition: 0
+--- !u!114 &1932625960822800626
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8033455830245931351}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 81715090e6f689d418a7aa664f76f29c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerTimelineRecorder
+  ShowTopMostFoldoutHeaderGroup: 1
+  recordingDuration: 300
+  recordingInterval: 0.1
 --- !u!1 &8170222246843174030
 GameObject:
   m_ObjectHideFlags: 0
