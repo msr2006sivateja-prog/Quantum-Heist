@@ -15,13 +15,32 @@ public class HelpNotificationUI : MonoBehaviour
 
     private void Awake()
     {
+        if (Instance != null && Instance != this)
+        {
+            Debug.LogWarning(
+                "HelpNotificationUI: Duplicate instance found.", this
+            );
+            return;
+        }
+
         Instance = this;
 
         if (notificationText == null)
-            notificationText = GetComponent<TMP_Text>();
+            notificationText = GetComponentInChildren<TMP_Text>(true);
 
-        if (notificationText != null)
-            notificationText.text = "";
+        if (notificationText == null)
+        {
+            Debug.LogError(
+                "HelpNotificationUI: No TMP_Text found. " +
+                "Assign the notification text in the Inspector.", this
+            );
+            return;
+        }
+
+        notificationText.text = "";
+        notificationText.enabled = true;
+
+        Debug.Log("HELP UI: Notification UI initialized.");
     }
 
     public void ShowHelpRequest(ulong playerId)
@@ -33,22 +52,28 @@ public class HelpNotificationUI : MonoBehaviour
     {
         if (notificationText == null)
         {
-            Debug.LogWarning("HelpNotificationUI: Text is not assigned.");
+            Debug.LogError("HELP UI: Cannot show message; TMP_Text is missing.");
             return;
         }
 
+        notificationText.enabled = true;
         notificationText.text = message;
 
         if (hideCoroutine != null)
             StopCoroutine(hideCoroutine);
 
         hideCoroutine = StartCoroutine(HideAfterDelay());
+
+        Debug.Log($"HELP UI: Displaying: {message}");
     }
 
     public void ShowPersistentStatus(string message)
     {
         if (notificationText == null)
+        {
+            Debug.LogError("HELP UI: Cannot show status; TMP_Text is missing.");
             return;
+        }
 
         if (hideCoroutine != null)
         {
@@ -56,7 +81,10 @@ public class HelpNotificationUI : MonoBehaviour
             hideCoroutine = null;
         }
 
+        notificationText.enabled = true;
         notificationText.text = message;
+
+        Debug.Log($"HELP UI: Persistent status: {message}");
     }
 
     public void ClearStatus()
