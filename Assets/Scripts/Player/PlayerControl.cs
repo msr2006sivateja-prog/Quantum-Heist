@@ -24,16 +24,21 @@ public class PlayerController : NetworkBehaviour
     [Header("Animation")]
     [SerializeField] private Animator playerAnimator;
 
+    private readonly NetworkVariable<bool> gameplayPaused =
+        new NetworkVariable<bool>(
+            false,
+            NetworkVariableReadPermission.Everyone,
+            NetworkVariableWritePermission.Server
+        );
+
     private CharacterController controller;
     private PlayerInputActions inputActions;
     private AudioListener audioListener;
 
     private float cameraPitch;
     private Vector3 normalCameraLocalPosition;
-
     private Vector2 moveInput;
     private Vector2 lookInput;
-
     private float accumulatedMouseX;
 
     private const float InputSendInterval = 1f / 30f;
@@ -110,10 +115,45 @@ public class PlayerController : NetworkBehaviour
         base.OnDestroy();
     }
 
+    // Called by the server to freeze or unfreeze this player.
+    public void SetGameplayPaused(bool paused)
+    {
+        if (!IsServer)
+            return;
+
+        gameplayPaused.Value = paused;
+
+        if (paused)
+        {
+            moveInput = Vector2.zero;
+            lookInput = Vector2.zero;
+            accumulatedMouseX = 0f;
+        }
+
+        Debug.Log(
+            $"PLAYER: Gameplay {(paused ? "paused" : "resumed")} " +
+            $"for client {OwnerClientId}"
+        );
+    }
+
     private void Update()
     {
         if (!IsSpawned)
             return;
+
+        if (gameplayPaused.Value)
+        {
+            if (IsOwner)
+            {
+                moveInput = Vector2.zero;
+                lookInput = Vector2.zero;
+            }
+
+            if (IsServer)
+                moveInput = Vector2.zero;
+
+            return;
+        }
 
         if (IsOwner)
         {
@@ -124,7 +164,6 @@ public class PlayerController : NetworkBehaviour
             HandleShooting();
             HandleReload();
 
-            // Send horizontal mouse movement every frame.
             accumulatedMouseX += lookInput.x;
 
             if (Mathf.Abs(accumulatedMouseX) > 0.001f)
@@ -133,7 +172,6 @@ public class PlayerController : NetworkBehaviour
                 accumulatedMouseX = 0f;
             }
 
-            // Send movement input at 30 updates per second.
             inputSendTimer += Time.deltaTime;
 
             if (inputSendTimer >= InputSendInterval)
@@ -144,40 +182,42 @@ public class PlayerController : NetworkBehaviour
         }
 
         if (IsServer)
-        {
             UpdateMovement();
-        }
     }
 
     private void ReadInput()
     {
         moveInput = inputActions.Player.Move.ReadValue<Vector2>();
-
         lookInput = inputActions.Player.Look.ReadValue<Vector2>();
     }
 
     [ServerRpc]
     private void SendMovementInputServerRpc(Vector2 input)
     {
+        if (gameplayPaused.Value)
+            return;
+
         moveInput = Vector2.ClampMagnitude(input, 1f);
     }
 
     [ServerRpc]
     private void SendLookInputServerRpc(float mouseX)
     {
+        if (gameplayPaused.Value)
+            return;
+
         if (Mathf.Abs(mouseX) > 0.001f)
         {
-            Debug.Log("Server received mouse X: " + mouseX);
-
             float rotationAmount = mouseX * lookSensitivity;
-
             transform.Rotate(Vector3.up * rotationAmount);
         }
     }
 
     private void UpdateMovement()
     {
-        if (controller == null || !controller.enabled)
+        if (gameplayPaused.Value ||
+            controller == null ||
+            !controller.enabled)
             return;
 
         Vector3 direction = new Vector3(
@@ -209,7 +249,6 @@ public class PlayerController : NetworkBehaviour
         float mouseY = lookInput.y * lookSensitivity;
 
         cameraPitch -= mouseY;
-
         cameraPitch = Mathf.Clamp(
             cameraPitch,
             -maxLookAngle,

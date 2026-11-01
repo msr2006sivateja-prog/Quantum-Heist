@@ -26,6 +26,8 @@ public class PoliceAI : MonoBehaviour
     [SerializeField] private Animator animator;
     [SerializeField] private float animationSpeedMultiplier = 1f;
 
+    private bool isPaused;
+
     private NavMeshAgent agent;
     private Transform player;
 
@@ -37,6 +39,26 @@ public class PoliceAI : MonoBehaviour
 
     private static readonly int SpeedHash =
         Animator.StringToHash("Speed");
+
+    public void SetPaused(bool paused)
+    {
+        isPaused = paused;
+
+        if (agent != null && agent.isOnNavMesh)
+        {
+            agent.isStopped = paused;
+
+            if (paused)
+                agent.velocity = Vector3.zero;
+        }
+
+        if (paused && animator != null)
+            animator.SetFloat(SpeedHash, 0f);
+
+        Debug.Log(
+            $"POLICE: {gameObject.name} {(paused ? "paused" : "resumed")}"
+        );
+    }
 
     private void Awake()
     {
@@ -83,6 +105,9 @@ public class PoliceAI : MonoBehaviour
 
     private void Update()
     {
+        if (isPaused)
+            return;
+
         if (agent == null || !agent.isOnNavMesh)
             return;
 
