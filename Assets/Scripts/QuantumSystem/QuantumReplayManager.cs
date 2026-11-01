@@ -16,15 +16,21 @@ public class QuantumReplayManager : MonoBehaviour
     [SerializeField] private GameObject ghostPlayerPrefab;
 
     public Vector3 Bank1Position =>
-    bank1 != null ? bank1.position : Vector3.zero;
+        bank1 != null ? bank1.position : Vector3.zero;
 
     public Vector3 Bank2Position =>
-    bank2 != null ? bank2.position : Vector3.zero;
+        bank2 != null ? bank2.position : Vector3.zero;
 
     private Vector3 savedReturnPosition;
     private Quaternion savedReturnRotation;
+
     private ulong activeRescuerId = ulong.MaxValue;
+    private ulong activeRescuedId = ulong.MaxValue;
+
+    private NetworkObject activeGhost;
     private bool rescueInProgress;
+
+    private const float OriginalBankPoliceRadius = 150f;
 
     private void Awake()
     {
@@ -37,7 +43,6 @@ public class QuantumReplayManager : MonoBehaviour
             Instance = null;
     }
 
-    // Called by the HELP system when the responder reaches SafeZone.
     public bool BeginHelpRescue(
         ulong rescuedPlayerId,
         ulong rescuerPlayerId)
@@ -56,25 +61,25 @@ public class QuantumReplayManager : MonoBehaviour
             return false;
 
         if (!NetworkManager.Singleton.ConnectedClients.TryGetValue(
-                rescuedPlayerId, out var rescuedClient) ||
+            rescuedPlayerId, out var rescuedClient) ||
             rescuedClient.PlayerObject == null)
         {
-            Debug.LogError("QUANTUM: Could not find rescued player's object.");
+            Debug.LogError("QUANTUM: Rescued player not found.");
             return false;
         }
 
         if (!NetworkManager.Singleton.ConnectedClients.TryGetValue(
-                rescuerPlayerId, out var rescuerClient) ||
+            rescuerPlayerId, out var rescuerClient) ||
             rescuerClient.PlayerObject == null)
         {
-            Debug.LogError("QUANTUM: Could not find rescuer's object.");
+            Debug.LogError("QUANTUM: Rescuer not found.");
             return false;
         }
 
         if (!PlayerTimelineRecorder.TryGetRecorder(
-                rescuedPlayerId, out PlayerTimelineRecorder recorder))
+            rescuedPlayerId, out PlayerTimelineRecorder recorder))
         {
-            Debug.LogError("QUANTUM: Rescued player has no timeline recorder.");
+            Debug.LogError("QUANTUM: Rescued player's recorder not found.");
             return false;
         }
 
@@ -83,10 +88,7 @@ public class QuantumReplayManager : MonoBehaviour
 
         if (frames == null || frames.Count < 2)
         {
-            Debug.LogWarning(
-                "QUANTUM: Not enough recorded frames. " +
-                "Let the player move for a little longer first."
-            );
+            Debug.LogWarning("QUANTUM: Not enough recorded frames.");
             return false;
         }
 
@@ -96,44 +98,41 @@ public class QuantumReplayManager : MonoBehaviour
                 ? bank1
                 : bank2;
 
-        // Spawn the ghost before moving the rescuer.
         if (!SpawnGhost(frames, sourceBank, rescuedPlayerId))
             return false;
 
         NetworkObject rescuedObject = rescuedClient.PlayerObject;
         NetworkObject rescuerObject = rescuerClient.PlayerObject;
 
-        // Freeze the rescued player in their original dimension.
         PlayerController rescuedController =
             rescuedObject.GetComponent<PlayerController>();
 
         if (rescuedController != null)
             rescuedController.SetGameplayPaused(true);
 
-        // Stop recording the rescuer while they are in tempBank.
         PlayerTimelineRecorder rescuerRecorder =
             rescuerObject.GetComponent<PlayerTimelineRecorder>();
 
         if (rescuerRecorder != null)
             rescuerRecorder.SetRecordingEnabled(false);
 
-        // Save the rescuer's original location for the return stage.
         savedReturnPosition = rescuerObject.transform.position;
         savedReturnRotation = rescuerObject.transform.rotation;
-        activeRescuerId = rescuerPlayerId;
 
-        // Move the rescuer to the temporary bank.
+        activeRescuerId = rescuerPlayerId;
+        activeRescuedId = rescuedPlayerId;
+
+        rescueInProgress = true;
+
         TeleportPlayer(
             rescuerObject,
             tempBank.position,
             tempBank.rotation
         );
 
-        rescueInProgress = true;
-
         Debug.Log(
-            $"QUANTUM: Rescuer {rescuerPlayerId} teleported to tempBank. " +
-            $"Ghost replaying rescued player {rescuedPlayerId}."
+            $"QUANTUM: Rescuer {rescuerPlayerId} entered tempBank. " +
+            $"Ghost replaying Player {rescuedPlayerId}."
         );
 
         return true;
@@ -145,7 +144,7 @@ public class QuantumReplayManager : MonoBehaviour
             tempBank == null || ghostPlayerPrefab == null)
         {
             Debug.LogError(
-                "QUANTUM: Assign bank1, bank2, tempBank and GhostPlayer prefab."
+                "QUANTUM: Assign bank1, bank2, tempBank and GhostPlayer."
             );
             return false;
         }
@@ -187,16 +186,16 @@ public class QuantumReplayManager : MonoBehaviour
         if (networkObject == null || replay == null)
         {
             Debug.LogError(
-                "QUANTUM: GhostPlayer prefab needs NetworkObject " +
-                "and PlayerGhostReplay."
+                "QUANTUM: GhostPlayer needs NetworkObject and PlayerGhostReplay."
             );
 
             Destroy(ghost);
             return false;
         }
 
-        // Server spawns it so connected clients can observe it.
         networkObject.Spawn();
+
+        activeGhost = networkObject;
 
         replay.BeginReplay(frames, sourceBank, tempBank);
 
@@ -206,6 +205,81 @@ public class QuantumReplayManager : MonoBehaviour
         );
 
         return true;
+    }
+
+    // Called by PlayerGhostReplay after the final frame.
+    public void OnGhostReplayCompleted()
+    {
+        if (!NetworkManager.Singleton.IsServer || !rescueInProgress)
+            return;
+
+        Debug.Log("QUANTUM: Ghost replay finished. Returning rescuer.");
+
+        if (!NetworkManager.Singleton.ConnectedClients.TryGetValue(
+            activeRescuerId, out var rescuerClient) ||
+            rescuerClient.PlayerObject == null)
+        {
+            Debug.LogError("QUANTUM: Could not find rescuer to return.");
+            return;
+        }
+
+        NetworkObject rescuerObject = rescuerClient.PlayerObject;
+
+        TeleportPlayer(
+            rescuerObject,
+            savedReturnPosition,
+            savedReturnRotation
+        );
+
+        PlayerTimelineRecorder rescuerRecorder =
+            rescuerObject.GetComponent<PlayerTimelineRecorder>();
+
+        if (rescuerRecorder != null)
+            rescuerRecorder.SetRecordingEnabled(true);
+
+        if (NetworkManager.Singleton.ConnectedClients.TryGetValue(
+            activeRescuedId, out var rescuedClient) &&
+            rescuedClient.PlayerObject != null)
+        {
+            PlayerController rescuedController =
+                rescuedClient.PlayerObject.GetComponent<PlayerController>();
+
+            if (rescuedController != null)
+                rescuedController.SetGameplayPaused(false);
+        }
+
+        if (activeGhost != null && activeGhost.IsSpawned)
+            activeGhost.Despawn(true);
+
+        if (RescueManagerIsAvailable())
+        {
+            RescueManager manager = FindObjectOfType<RescueManager>();
+
+            if (manager != null)
+            {
+                manager.ResumeOriginalPoliceClientRpc(
+                    Bank1Position,
+                    Bank2Position,
+                    OriginalBankPoliceRadius
+                );
+            }
+        }
+
+        rescueInProgress = false;
+        activeRescuerId = ulong.MaxValue;
+        activeRescuedId = ulong.MaxValue;
+        activeGhost = null;
+
+        RescueManager.CompleteRescueOnServer();
+
+        Debug.Log(
+            "QUANTUM: Rescue session ended. Ready for another HELP request."
+        );
+    }
+
+    private bool RescueManagerIsAvailable()
+    {
+        return FindObjectOfType<RescueManager>() != null;
     }
 
     private void TeleportPlayer(
@@ -219,20 +293,19 @@ public class QuantumReplayManager : MonoBehaviour
         CharacterController[] controllers =
             player.GetComponentsInChildren<CharacterController>(true);
 
-        foreach (CharacterController characterController in controllers)
-            characterController.enabled = false;
+        foreach (CharacterController cc in controllers)
+            cc.enabled = false;
 
         player.transform.SetPositionAndRotation(position, rotation);
 
-        foreach (CharacterController characterController in controllers)
-            characterController.enabled = true;
+        foreach (CharacterController cc in controllers)
+            cc.enabled = true;
 
         Debug.Log(
             $"QUANTUM: Player {player.OwnerClientId} teleported to {position}"
         );
     }
 
-    // Keep the old manual host test available.
     [ContextMenu("Test Ghost Replay - Host Player")]
     public void TestHostReplay()
     {
@@ -246,13 +319,14 @@ public class QuantumReplayManager : MonoBehaviour
         ulong hostId = NetworkManager.Singleton.LocalClientId;
 
         if (!PlayerTimelineRecorder.TryGetRecorder(
-                hostId, out PlayerTimelineRecorder recorder))
+            hostId, out PlayerTimelineRecorder recorder))
         {
             Debug.LogWarning("QUANTUM: Host recorder not found.");
             return;
         }
 
-        var frames = recorder.GetRecordedFrames();
+        List<PlayerTimelineRecorder.TimelineFrame> frames =
+            recorder.GetRecordedFrames();
 
         if (frames.Count < 2 || !ValidateReferences())
             return;
