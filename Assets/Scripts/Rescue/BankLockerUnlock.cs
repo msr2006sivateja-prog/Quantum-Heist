@@ -67,6 +67,7 @@ public class BankLockerUnlock : NetworkBehaviour
         PlayerInventory inventory =
             player.GetComponentInChildren<PlayerInventory>();
 
+        // Same key works regardless of the player's dimension.
         if (inventory == null || !inventory.HasBankKey)
         {
             Debug.Log("LOCKER: Bank Key required.");

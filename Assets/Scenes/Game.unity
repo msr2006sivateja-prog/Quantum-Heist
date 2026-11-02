@@ -5714,7 +5714,7 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   doorVisual: {fileID: 1298740321}
   interactionDistance: 4
-  isTemporaryBankDoor: 0
+  isTemporaryBankDoor: 1
 --- !u!114 &1884434422
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6881,7 +6881,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 83f6118bf1ac446478019893a36ec67c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::QuantumRelayManager
-  joinCode: TB67WM
+  joinCode: GDRN6B
 --- !u!1 &2134625364
 GameObject:
   m_ObjectHideFlags: 0

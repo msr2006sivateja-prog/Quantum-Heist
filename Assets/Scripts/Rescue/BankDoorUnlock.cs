@@ -28,6 +28,11 @@ public class BankDoorUnlock : NetworkBehaviour
         ApplyDoorState(isUnlocked.Value);
     }
 
+    public override void OnNetworkDespawn()
+    {
+        isUnlocked.OnValueChanged -= OnUnlockChanged;
+    }
+
     public void UnlockFromRescue()
     {
         if (!IsServer || isUnlocked.Value)
@@ -36,11 +41,6 @@ public class BankDoorUnlock : NetworkBehaviour
         isUnlocked.Value = true;
 
         Debug.Log("BANK DOOR: Unlocked through HELP rescue.");
-    }
-
-    public override void OnNetworkDespawn()
-    {
-        isUnlocked.OnValueChanged -= OnUnlockChanged;
     }
 
     public void RequestUnlock()
@@ -82,6 +82,7 @@ public class BankDoorUnlock : NetworkBehaviour
         PlayerInventory inventory =
             player.GetComponentInChildren<PlayerInventory>();
 
+        // The same Bank Key works in every dimension.
         if (inventory == null || !inventory.HasBankKey)
         {
             Debug.Log("DOOR: Player does not have the Bank Key.");
@@ -90,6 +91,7 @@ public class BankDoorUnlock : NetworkBehaviour
 
         isUnlocked.Value = true;
 
+        // Only the TempBank door triggers the original bank door.
         if (isTemporaryBankDoor &&
             QuantumReplayManager.Instance != null)
         {
