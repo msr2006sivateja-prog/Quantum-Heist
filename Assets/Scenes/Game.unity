@@ -6770,8 +6770,8 @@ MonoBehaviour:
   bank1: {fileID: 1782735188}
   bank2: {fileID: 476550548}
   tempBank: {fileID: 1933651250}
-  bank1Door: {fileID: 1969066459}
-  bank2Door: {fileID: 1023094221}
+  bank1Door: {fileID: 1023094221}
+  bank2Door: {fileID: 1969066459}
   ghostPlayerPrefab: {fileID: 743360160}
 --- !u!4 &2019862901
 Transform:
