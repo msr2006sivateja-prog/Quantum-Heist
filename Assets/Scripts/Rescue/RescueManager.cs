@@ -54,25 +54,28 @@ public class RescueManager : NetworkBehaviour
         if (Keyboard.current.hKey.wasPressedThisFrame)
         {
             Debug.Log("RESCUE INPUT: H pressed.");
-            RequestHelpServerRpc();
+            RequestHelpRpc();
         }
 
         if (Keyboard.current.jKey.wasPressedThisFrame)
         {
             Debug.Log("RESCUE INPUT: J pressed.");
-            AcknowledgeHelpServerRpc();
+            AcknowledgeHelpRpc();
         }
 
         if (Keyboard.current.kKey.wasPressedThisFrame)
         {
             Debug.Log("RESCUE INPUT: K pressed.");
-            CancelHelpServerRpc();
+            CancelHelpRpc();
         }
     }
 
-    [ServerRpc(RequireOwnership = false)]
-    private void RequestHelpServerRpc(
-        ServerRpcParams rpcParams = default)
+    // ==========================================
+    // HELP REQUEST
+    // ==========================================
+
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
+    private void RequestHelpRpc(RpcParams rpcParams = default)
     {
         ulong requesterId = rpcParams.Receive.SenderClientId;
 
@@ -104,18 +107,25 @@ public class RescueManager : NetworkBehaviour
 
         lastHelpRequestTime[requesterId] = Time.time;
 
-        Debug.Log($"RESCUE: HELP request registered for Player {requesterId}.");
+        Debug.Log(
+            $"RESCUE: HELP request registered for Player {requesterId}."
+        );
 
-        NotifyHelpRequestedClientRpc(requesterId);
+        NotifyHelpRequestedRpc(requesterId);
     }
 
-    [ServerRpc(RequireOwnership = false)]
-    private void AcknowledgeHelpServerRpc(
-        ServerRpcParams rpcParams = default)
+    // ==========================================
+    // ACCEPT HELP
+    // ==========================================
+
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
+    private void AcknowledgeHelpRpc(RpcParams rpcParams = default)
     {
         ulong responderId = rpcParams.Receive.SenderClientId;
 
-        Debug.Log($"RESCUE: Player {responderId} wants to accept HELP.");
+        Debug.Log(
+            $"RESCUE: Player {responderId} wants to accept HELP."
+        );
 
         if (activeRequesterId == NoRequester)
         {
@@ -125,7 +135,9 @@ public class RescueManager : NetworkBehaviour
 
         if (responderId == activeRequesterId)
         {
-            Debug.LogWarning("RESCUE: Requester cannot rescue themselves.");
+            Debug.LogWarning(
+                "RESCUE: Requester cannot rescue themselves."
+            );
             return;
         }
 
@@ -145,15 +157,15 @@ public class RescueManager : NetworkBehaviour
             $"{activeRequesterId}'s request."
         );
 
-        NotifyHelpAcknowledgedClientRpc(
-            activeRequesterId,
-            responderId
-        );
+        NotifyHelpAcknowledgedRpc(activeRequesterId, responderId);
     }
 
-    [ServerRpc(RequireOwnership = false)]
-    private void CancelHelpServerRpc(
-        ServerRpcParams rpcParams = default)
+    // ==========================================
+    // CANCEL HELP
+    // ==========================================
+
+    [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
+    private void CancelHelpRpc(RpcParams rpcParams = default)
     {
         ulong requesterId = rpcParams.Receive.SenderClientId;
 
@@ -166,8 +178,13 @@ public class RescueManager : NetworkBehaviour
         }
 
         ResetHelpState();
-        NotifyHelpCancelledClientRpc(requesterId);
+
+        NotifyHelpCancelledRpc(requesterId);
     }
+
+    // ==========================================
+    // RESET HELP STATE
+    // ==========================================
 
     private static void ResetHelpState()
     {
@@ -178,7 +195,10 @@ public class RescueManager : NetworkBehaviour
         Debug.Log("RESCUE: HELP state has been reset.");
     }
 
-    // Called by QuantumReplayManager when the ghost finishes replaying.
+    // ==========================================
+    // COMPLETE RESCUE
+    // ==========================================
+
     public static void CompleteRescueOnServer()
     {
         if (NetworkManager.Singleton == null ||
@@ -187,7 +207,9 @@ public class RescueManager : NetworkBehaviour
 
         if (serverInstance == null)
         {
-            Debug.LogError("RESCUE: Server manager instance is missing.");
+            Debug.LogError(
+                "RESCUE: Server manager instance is missing."
+            );
             return;
         }
 
@@ -196,11 +218,15 @@ public class RescueManager : NetworkBehaviour
 
         ResetHelpState();
 
-        serverInstance.NotifyRescueCompletedClientRpc(
+        serverInstance.NotifyRescueCompletedRpc(
             completedRequester,
             completedResponder
         );
     }
+
+    // ==========================================
+    // SAFE ZONE
+    // ==========================================
 
     public static void NotifySafeZoneEntered(PlayerInventory inventory)
     {
@@ -227,7 +253,9 @@ public class RescueManager : NetworkBehaviour
 
         if (QuantumReplayManager.Instance == null)
         {
-            Debug.LogError("RESCUE: QuantumReplayManager is missing.");
+            Debug.LogError(
+                "RESCUE: QuantumReplayManager is missing."
+            );
             return;
         }
 
@@ -239,25 +267,28 @@ public class RescueManager : NetworkBehaviour
 
         if (!started)
         {
-            Debug.LogError("RESCUE: Quantum travel failed to start.");
+            Debug.LogError(
+                "RESCUE: Quantum travel failed to start."
+            );
             return;
         }
 
         responderReachedSafeZone = true;
 
         Debug.Log(
-            $"RESCUE: Quantum travel started. Rescued={activeRequesterId}, " +
+            $"RESCUE: Quantum travel started. " +
+            $"Rescued={activeRequesterId}, " +
             $"Rescuer={activeResponderId}"
         );
 
         if (serverInstance != null)
         {
-            serverInstance.NotifySafeZoneReachedClientRpc(playerId);
+            serverInstance.NotifySafeZoneReachedRpc(playerId);
 
             QuantumReplayManager manager =
                 QuantumReplayManager.Instance;
 
-            serverInstance.PauseOriginalPoliceClientRpc(
+            serverInstance.PauseOriginalPoliceRpc(
                 manager.Bank1Position,
                 manager.Bank2Position,
                 OriginalBankPoliceRadius
@@ -265,13 +296,18 @@ public class RescueManager : NetworkBehaviour
         }
     }
 
-    [ClientRpc]
-    private void PauseOriginalPoliceClientRpc(
+    // ==========================================
+    // PAUSE ORIGINAL BANK POLICE
+    // ==========================================
+
+    [Rpc(SendTo.ClientsAndHost)]
+    private void PauseOriginalPoliceRpc(
         Vector3 bank1Position,
         Vector3 bank2Position,
         float radius)
     {
-        PoliceAI[] officers = FindObjectsOfType<PoliceAI>();
+        PoliceAI[] officers =
+            FindObjectsByType<PoliceAI>();
 
         foreach (PoliceAI officer in officers)
         {
@@ -279,23 +315,32 @@ public class RescueManager : NetworkBehaviour
                 continue;
 
             float d1 = Vector3.Distance(
-                officer.transform.position, bank1Position);
+                officer.transform.position,
+                bank1Position
+            );
 
             float d2 = Vector3.Distance(
-                officer.transform.position, bank2Position);
+                officer.transform.position,
+                bank2Position
+            );
 
             if (d1 <= radius || d2 <= radius)
                 officer.SetPaused(true);
         }
     }
 
-    [ClientRpc]
-    public void ResumeOriginalPoliceClientRpc(
+    // ==========================================
+    // RESUME ORIGINAL BANK POLICE
+    // ==========================================
+
+    [Rpc(SendTo.ClientsAndHost)]
+    public void ResumeOriginalPoliceRpc(
         Vector3 bank1Position,
         Vector3 bank2Position,
         float radius)
     {
-        PoliceAI[] officers = FindObjectsOfType<PoliceAI>();
+        PoliceAI[] officers =
+            FindObjectsByType<PoliceAI>();
 
         foreach (PoliceAI officer in officers)
         {
@@ -303,10 +348,14 @@ public class RescueManager : NetworkBehaviour
                 continue;
 
             float d1 = Vector3.Distance(
-                officer.transform.position, bank1Position);
+                officer.transform.position,
+                bank1Position
+            );
 
             float d2 = Vector3.Distance(
-                officer.transform.position, bank2Position);
+                officer.transform.position,
+                bank2Position
+            );
 
             if (d1 <= radius || d2 <= radius)
                 officer.SetPaused(false);
@@ -315,10 +364,16 @@ public class RescueManager : NetworkBehaviour
         Debug.Log("RESCUE: Original-bank police resumed.");
     }
 
-    [ClientRpc]
-    private void NotifyHelpRequestedClientRpc(ulong requesterId)
+    // ==========================================
+    // NOTIFICATIONS
+    // ==========================================
+
+    [Rpc(SendTo.ClientsAndHost)]
+    private void NotifyHelpRequestedRpc(ulong requesterId)
     {
-        Debug.Log($"RESCUE: Player {requesterId} requested HELP!");
+        Debug.Log(
+            $"RESCUE: Player {requesterId} requested HELP!"
+        );
 
         if (HelpNotificationUI.Instance != null)
         {
@@ -328,9 +383,10 @@ public class RescueManager : NetworkBehaviour
         }
     }
 
-    [ClientRpc]
-    private void NotifyHelpAcknowledgedClientRpc(
-        ulong requesterId, ulong responderId)
+    [Rpc(SendTo.ClientsAndHost)]
+    private void NotifyHelpAcknowledgedRpc(
+        ulong requesterId,
+        ulong responderId)
     {
         if (HelpNotificationUI.Instance != null)
         {
@@ -340,8 +396,8 @@ public class RescueManager : NetworkBehaviour
         }
     }
 
-    [ClientRpc]
-    private void NotifySafeZoneReachedClientRpc(ulong responderId)
+    [Rpc(SendTo.ClientsAndHost)]
+    private void NotifySafeZoneReachedRpc(ulong responderId)
     {
         if (HelpNotificationUI.Instance != null)
         {
@@ -351,16 +407,17 @@ public class RescueManager : NetworkBehaviour
         }
     }
 
-    [ClientRpc]
-    private void NotifyHelpCancelledClientRpc(ulong requesterId)
+    [Rpc(SendTo.ClientsAndHost)]
+    private void NotifyHelpCancelledRpc(ulong requesterId)
     {
         if (HelpNotificationUI.Instance != null)
             HelpNotificationUI.Instance.ClearStatus();
     }
 
-    [ClientRpc]
-    private void NotifyRescueCompletedClientRpc(
-        ulong requesterId, ulong responderId)
+    [Rpc(SendTo.ClientsAndHost)]
+    private void NotifyRescueCompletedRpc(
+        ulong requesterId,
+        ulong responderId)
     {
         Debug.Log(
             $"RESCUE: Completed. Requester={requesterId}, " +
