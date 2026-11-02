@@ -12,6 +12,12 @@ public class QuantumReplayManager : MonoBehaviour
     [SerializeField] private Transform bank2;
     [SerializeField] private Transform tempBank;
 
+    [Header("Bank Doors")]
+    [SerializeField] private BankDoorUnlock bank1Door;
+    [SerializeField] private BankDoorUnlock bank2Door;
+
+    private Transform activeSourceBank;
+
     [Header("Ghost")]
     [SerializeField] private GameObject ghostPlayerPrefab;
 
@@ -98,6 +104,8 @@ public class QuantumReplayManager : MonoBehaviour
                 ? bank1
                 : bank2;
 
+        activeSourceBank = sourceBank;
+
         if (!SpawnGhost(frames, sourceBank, rescuedPlayerId))
             return false;
 
@@ -136,6 +144,42 @@ public class QuantumReplayManager : MonoBehaviour
         );
 
         return true;
+    }
+
+    public void UnlockOriginalBankDoorForActiveRescue()
+    {
+        if (NetworkManager.Singleton == null ||
+            !NetworkManager.Singleton.IsServer)
+            return;
+
+        if (!rescueInProgress || activeSourceBank == null)
+        {
+            Debug.LogWarning(
+                "QUANTUM: No active rescued player's bank was identified."
+            );
+            return;
+        }
+
+        BankDoorUnlock originalDoor = null;
+
+        if (activeSourceBank == bank1)
+            originalDoor = bank1Door;
+        else if (activeSourceBank == bank2)
+            originalDoor = bank2Door;
+
+        if (originalDoor == null)
+        {
+            Debug.LogError(
+                "QUANTUM: Original bank door reference is missing."
+            );
+            return;
+        }
+
+        originalDoor.UnlockFromRescue();
+
+        Debug.Log(
+            "QUANTUM: Original bank door unlocked for rescued player."
+        );
     }
 
     private bool ValidateReferences()
@@ -264,6 +308,8 @@ public class QuantumReplayManager : MonoBehaviour
                 );
             }
         }
+
+        activeSourceBank = null;
 
         rescueInProgress = false;
         activeRescuerId = ulong.MaxValue;

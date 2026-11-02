@@ -289,6 +289,7 @@ GameObject:
   - component: {fileID: 8749878210799021496}
   - component: {fileID: 3843356492668726958}
   - component: {fileID: 1932625960822800626}
+  - component: {fileID: -2510832136341371978}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -419,7 +420,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 642892355
+  GlobalObjectIdHash: 273921678
   InScenePlacedSourceGlobalObjectIdHash: 0
   m_InScenePlacedDisabledByDefault: 0
   DeferredDespawnTick: 0
@@ -493,6 +494,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dfda2f1a394af45498d91a970204798b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerInventory
+  ShowTopMostFoldoutHeaderGroup: 1
 --- !u!114 &8749878210799021496
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -568,6 +570,20 @@ MonoBehaviour:
   recordingDuration: 300
   recordingInterval: 0.1
   recordingEnabled: 1
+--- !u!114 &-2510832136341371978
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8033455830245931351}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7f0b15cf023d9524da6abd05b01d3b78, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerInteractor
+  playerCamera: {fileID: 8731519302251748577}
+  interactDistance: 4
 --- !u!1 &8170222246843174030
 GameObject:
   m_ObjectHideFlags: 0

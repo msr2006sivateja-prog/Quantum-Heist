@@ -420,6 +420,82 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: -462981019419857548, guid: d3d281272b6f25540af78f2afbc33aab, type: 3}
+--- !u!1 &113544171
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 113544172}
+  - component: {fileID: 113544174}
+  - component: {fileID: 113544173}
+  m_Layer: 0
+  m_Name: LockerNetwork
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &113544172
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 113544171}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0.0025143002, y: 0.0037377558, z: -0.014161434, w: 0.9998896}
+  m_LocalPosition: {x: 13.62, y: -0.02, z: 4.88}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 956099250}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &113544173
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 113544171}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ada228afb7d16b848be4a9c6c430c908, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BankLockerUnlock
+  ShowTopMostFoldoutHeaderGroup: 1
+  lockerVisual: {fileID: 654077088}
+  additionalCylinder: {fileID: 869921079}
+  interactionDistance: 3
+--- !u!114 &113544174
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 113544171}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
+  GlobalObjectIdHash: 717784375
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  m_InScenePlacedDisabledByDefault: 0
+  DeferredDespawnTick: 0
+  Ownership: 1
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  m_InScenePlaced: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 0
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
+  SyncOwnerTransformWhenParented: 1
+  AllowOwnerToParent: 0
 --- !u!64 &161836671
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -1086,6 +1162,12 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: d3d281272b6f25540af78f2afbc33aab, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1330656465}
+    - targetCorrespondingSourceObject: {fileID: 8646049857070954679, guid: d3d281272b6f25540af78f2afbc33aab, type: 3}
+      insertIndex: 1
+      addedObject: {fileID: 1969066458}
+    - targetCorrespondingSourceObject: {fileID: 8646049857070954679, guid: d3d281272b6f25540af78f2afbc33aab, type: 3}
+      insertIndex: 2
+      addedObject: {fileID: 113544172}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: -5585752421297869401, guid: d3d281272b6f25540af78f2afbc33aab, type: 3}
       insertIndex: -1
@@ -3043,6 +3125,11 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 4376972941799831054, guid: d3d281272b6f25540af78f2afbc33aab, type: 3}
+--- !u!4 &956099250 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 8646049857070954679, guid: d3d281272b6f25540af78f2afbc33aab, type: 3}
+  m_PrefabInstance: {fileID: 476550547}
+  m_PrefabAsset: {fileID: 0}
 --- !u!64 &987272094
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -3131,6 +3218,82 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: -5495902117074765545, guid: d3d281272b6f25540af78f2afbc33aab, type: 3}
+--- !u!1 &1023094218
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1023094219}
+  - component: {fileID: 1023094220}
+  - component: {fileID: 1023094221}
+  m_Layer: 0
+  m_Name: BankDoorNetwork
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1023094219
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1023094218}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 3, y: 1, z: 8}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1782735189}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1023094220
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1023094218}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
+  GlobalObjectIdHash: 4000638281
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  m_InScenePlacedDisabledByDefault: 0
+  DeferredDespawnTick: 0
+  Ownership: 1
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  m_InScenePlaced: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 0
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
+  SyncOwnerTransformWhenParented: 1
+  AllowOwnerToParent: 0
+--- !u!114 &1023094221
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1023094218}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5f83dcd3fc1b0f4888d1463c18edfae, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BankDoorUnlock
+  ShowTopMostFoldoutHeaderGroup: 1
+  doorVisual: {fileID: 1298740321}
+  interactionDistance: 4
+  isTemporaryBankDoor: 0
 --- !u!1 &1033640848
 GameObject:
   m_ObjectHideFlags: 0
@@ -3770,6 +3933,11 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 8772314391258816753, guid: d3d281272b6f25540af78f2afbc33aab, type: 3}
+--- !u!1 &1298740321 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -1310282192847067405, guid: d3d281272b6f25540af78f2afbc33aab, type: 3}
+  m_PrefabInstance: {fileID: 1782735187}
+  m_PrefabAsset: {fileID: 0}
 --- !u!64 &1299316979
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -4379,6 +4547,82 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 3525479140033381557, guid: d3d281272b6f25540af78f2afbc33aab, type: 3}
+--- !u!1 &1542944275
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1542944276}
+  - component: {fileID: 1542944277}
+  - component: {fileID: 1542944278}
+  m_Layer: 0
+  m_Name: LockerNetwork
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1542944276
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1542944275}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 14.5, y: 0, z: 5}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1782735189}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1542944277
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1542944275}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
+  GlobalObjectIdHash: 3630745955
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  m_InScenePlacedDisabledByDefault: 0
+  DeferredDespawnTick: 0
+  Ownership: 1
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  m_InScenePlaced: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 0
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
+  SyncOwnerTransformWhenParented: 1
+  AllowOwnerToParent: 0
+--- !u!114 &1542944278
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1542944275}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ada228afb7d16b848be4a9c6c430c908, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BankLockerUnlock
+  ShowTopMostFoldoutHeaderGroup: 1
+  lockerVisual: {fileID: 654077088}
+  additionalCylinder: {fileID: 869921079}
+  interactionDistance: 3
 --- !u!64 &1556960168
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -4638,6 +4882,87 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 6255687079079774844, guid: d3d281272b6f25540af78f2afbc33aab, type: 3}
+--- !u!4 &1700015247 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 8646049857070954679, guid: d3d281272b6f25540af78f2afbc33aab, type: 3}
+  m_PrefabInstance: {fileID: 1933651249}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1703975711
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1703975712}
+  - component: {fileID: 1703975714}
+  - component: {fileID: 1703975713}
+  m_Layer: 0
+  m_Name: LockerNetwork
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1703975712
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1703975711}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0.0025143002, y: 0.0037377558, z: -0.014161434, w: 0.9998896}
+  m_LocalPosition: {x: 13.44, y: 0.05, z: 5.07}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1700015247}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1703975713
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1703975711}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ada228afb7d16b848be4a9c6c430c908, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BankLockerUnlock
+  ShowTopMostFoldoutHeaderGroup: 1
+  lockerVisual: {fileID: 654077088}
+  additionalCylinder: {fileID: 869921079}
+  interactionDistance: 3
+--- !u!114 &1703975714
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1703975711}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
+  GlobalObjectIdHash: 1261110158
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  m_InScenePlacedDisabledByDefault: 0
+  DeferredDespawnTick: 0
+  Ownership: 1
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  m_InScenePlaced: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 0
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
+  SyncOwnerTransformWhenParented: 1
+  AllowOwnerToParent: 0
 --- !u!1 &1711316117
 GameObject:
   m_ObjectHideFlags: 0
@@ -5035,6 +5360,12 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: d3d281272b6f25540af78f2afbc33aab, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1784439271}
+    - targetCorrespondingSourceObject: {fileID: 8646049857070954679, guid: d3d281272b6f25540af78f2afbc33aab, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1023094219}
+    - targetCorrespondingSourceObject: {fileID: 8646049857070954679, guid: d3d281272b6f25540af78f2afbc33aab, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1542944276}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: -5585752421297869401, guid: d3d281272b6f25540af78f2afbc33aab, type: 3}
       insertIndex: -1
@@ -5148,6 +5479,11 @@ PrefabInstance:
 --- !u!4 &1782735188 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: d3d281272b6f25540af78f2afbc33aab, type: 3}
+  m_PrefabInstance: {fileID: 1782735187}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &1782735189 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 8646049857070954679, guid: d3d281272b6f25540af78f2afbc33aab, type: 3}
   m_PrefabInstance: {fileID: 1782735187}
   m_PrefabAsset: {fileID: 0}
 --- !u!1 &1784439270
@@ -5330,6 +5666,82 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 3390558720134950976, guid: d3d281272b6f25540af78f2afbc33aab, type: 3}
+--- !u!1 &1884434419
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1884434420}
+  - component: {fileID: 1884434422}
+  - component: {fileID: 1884434421}
+  m_Layer: 0
+  m_Name: BankDoorNetwork
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1884434420
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1884434419}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0.0025143002, y: 0.0037377558, z: -0.014161434, w: 0.9998896}
+  m_LocalPosition: {x: 3.27, y: 0.76, z: 10.78}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1700015247}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1884434421
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1884434419}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5f83dcd3fc1b0f4888d1463c18edfae, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BankDoorUnlock
+  ShowTopMostFoldoutHeaderGroup: 1
+  doorVisual: {fileID: 1298740321}
+  interactionDistance: 4
+  isTemporaryBankDoor: 0
+--- !u!114 &1884434422
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1884434419}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
+  GlobalObjectIdHash: 3533914097
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  m_InScenePlacedDisabledByDefault: 0
+  DeferredDespawnTick: 0
+  Ownership: 1
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  m_InScenePlaced: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 0
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
+  SyncOwnerTransformWhenParented: 1
+  AllowOwnerToParent: 0
 --- !u!64 &1891875447
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -5419,6 +5831,12 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: d3d281272b6f25540af78f2afbc33aab, type: 3}
       insertIndex: -1
       addedObject: {fileID: 767195343}
+    - targetCorrespondingSourceObject: {fileID: 8646049857070954679, guid: d3d281272b6f25540af78f2afbc33aab, type: 3}
+      insertIndex: 2
+      addedObject: {fileID: 1884434420}
+    - targetCorrespondingSourceObject: {fileID: 8646049857070954679, guid: d3d281272b6f25540af78f2afbc33aab, type: 3}
+      insertIndex: 3
+      addedObject: {fileID: 1703975712}
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: -5585752421297869401, guid: d3d281272b6f25540af78f2afbc33aab, type: 3}
       insertIndex: -1
@@ -6065,6 +6483,82 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1934245158}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1969066457
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1969066458}
+  - component: {fileID: 1969066460}
+  - component: {fileID: 1969066459}
+  m_Layer: 0
+  m_Name: BankDoorNetwork
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1969066458
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1969066457}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0.0025143002, y: 0.0037377558, z: -0.014161434, w: 0.9998896}
+  m_LocalPosition: {x: 4.35, y: 0.85, z: 10.74}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 956099250}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1969066459
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1969066457}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5f83dcd3fc1b0f4888d1463c18edfae, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BankDoorUnlock
+  ShowTopMostFoldoutHeaderGroup: 1
+  doorVisual: {fileID: 1298740321}
+  interactionDistance: 4
+  isTemporaryBankDoor: 0
+--- !u!114 &1969066460
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1969066457}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
+  GlobalObjectIdHash: 4195706104
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  m_InScenePlacedDisabledByDefault: 0
+  DeferredDespawnTick: 0
+  Ownership: 1
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  m_InScenePlaced: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 0
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
+  SyncOwnerTransformWhenParented: 1
+  AllowOwnerToParent: 0
 --- !u!1 &1973408465 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: -5569043992460113364, guid: d3d281272b6f25540af78f2afbc33aab, type: 3}
@@ -6276,6 +6770,8 @@ MonoBehaviour:
   bank1: {fileID: 1782735188}
   bank2: {fileID: 476550548}
   tempBank: {fileID: 1933651250}
+  bank1Door: {fileID: 1023094221}
+  bank2Door: {fileID: 1969066459}
   ghostPlayerPrefab: {fileID: 743360160}
 --- !u!4 &2019862901
 Transform:
@@ -6398,6 +6894,7 @@ GameObject:
   - component: {fileID: 2134625367}
   - component: {fileID: 2134625366}
   - component: {fileID: 2134625365}
+  - component: {fileID: 2134625370}
   - component: {fileID: 2134625369}
   m_Layer: 0
   m_Name: BankKey
@@ -6513,6 +7010,34 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cf478694699f87c49a7ccaffae551b12, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BankKeyPickup
+  ShowTopMostFoldoutHeaderGroup: 1
+--- !u!114 &2134625370
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2134625364}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
+  GlobalObjectIdHash: 2043290025
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  m_InScenePlacedDisabledByDefault: 0
+  DeferredDespawnTick: 0
+  Ownership: 1
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  m_InScenePlaced: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 0
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
+  SyncOwnerTransformWhenParented: 1
+  AllowOwnerToParent: 0
 --- !u!1001 &2138343289
 PrefabInstance:
   m_ObjectHideFlags: 0

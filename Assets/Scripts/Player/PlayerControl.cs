@@ -1,11 +1,28 @@
 
 using UnityEngine;
 using Unity.Netcode;
+using UnityEngine.InputSystem;
 
 public class PlayerController : NetworkBehaviour
 {
     [Header("Movement")]
     [SerializeField] private float moveSpeed = 5f;
+
+    [Header("Crouch")]
+    [SerializeField] private float crouchMoveSpeed = 2.5f;
+    [SerializeField] private float crouchHeight = 1.2f;
+    [SerializeField] private float crouchCameraOffset = 0.5f;
+
+    private readonly NetworkVariable<bool> isCrouching =
+        new NetworkVariable<bool>(
+            false,
+            NetworkVariableReadPermission.Everyone,
+            NetworkVariableWritePermission.Server
+        );
+
+    private float standingHeight;
+    private Vector3 standingCenter;
+    private Vector3 standingCameraPosition;
 
     [Header("Look")]
     [SerializeField] private Transform cameraPivot;
@@ -52,8 +69,16 @@ public class PlayerController : NetworkBehaviour
         if (playerAnimator == null)
             playerAnimator = GetComponentInChildren<Animator>(true);
 
+        if (controller != null)
+        {
+            standingHeight = controller.height;
+            standingCenter = controller.center;
+        }
+
         if (cameraPivot != null)
         {
+            standingCameraPosition = cameraPivot.localPosition;
+
             audioListener =
                 cameraPivot.GetComponentInChildren<AudioListener>(true);
 
@@ -71,6 +96,9 @@ public class PlayerController : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
+        isCrouching.OnValueChanged += OnCrouchChanged;
+        ApplyCrouchState(isCrouching.Value);
+
         if (IsOwner)
         {
             inputActions.Enable();
@@ -103,6 +131,8 @@ public class PlayerController : NetworkBehaviour
 
     public override void OnNetworkDespawn()
     {
+        isCrouching.OnValueChanged -= OnCrouchChanged;
+
         if (inputActions != null)
             inputActions.Disable();
     }
@@ -115,7 +145,6 @@ public class PlayerController : NetworkBehaviour
         base.OnDestroy();
     }
 
-    // Called by the server to freeze or unfreeze this player.
     public void SetGameplayPaused(bool paused)
     {
         if (!IsServer)
@@ -158,11 +187,11 @@ public class PlayerController : NetworkBehaviour
         if (IsOwner)
         {
             ReadInput();
-
             HandleLook();
             HandleAiming();
             HandleShooting();
             HandleReload();
+            HandleCrouchInput();
 
             accumulatedMouseX += lookInput.x;
 
@@ -189,6 +218,65 @@ public class PlayerController : NetworkBehaviour
     {
         moveInput = inputActions.Player.Move.ReadValue<Vector2>();
         lookInput = inputActions.Player.Look.ReadValue<Vector2>();
+    }
+
+    private void HandleCrouchInput()
+    {
+        if (Keyboard.current != null &&
+            Keyboard.current.cKey.wasPressedThisFrame)
+        {
+            ToggleCrouchServerRpc();
+        }
+    }
+
+    [ServerRpc]
+    private void ToggleCrouchServerRpc()
+    {
+        isCrouching.Value = !isCrouching.Value;
+    }
+
+    private void OnCrouchChanged(bool oldValue, bool newValue)
+    {
+        ApplyCrouchState(newValue);
+    }
+
+    private void ApplyCrouchState(bool crouching)
+    {
+        if (controller != null)
+        {
+            if (crouching)
+            {
+                controller.height = crouchHeight;
+
+                float heightDifference =
+                    standingHeight - crouchHeight;
+
+                controller.center =
+                    standingCenter - new Vector3(
+                        0f,
+                        heightDifference / 2f,
+                        0f
+                    );
+            }
+            else
+            {
+                controller.height = standingHeight;
+                controller.center = standingCenter;
+            }
+        }
+
+        if (IsOwner && cameraPivot != null)
+        {
+            Vector3 targetPosition = standingCameraPosition;
+
+            if (crouching)
+                targetPosition.y -= crouchCameraOffset;
+
+            cameraPivot.localPosition = targetPosition;
+        }
+
+        if (playerAnimator != null)
+            playerAnimator.SetBool("Crouching", crouching);
     }
 
     [ServerRpc]
@@ -220,6 +308,9 @@ public class PlayerController : NetworkBehaviour
             !controller.enabled)
             return;
 
+        float currentSpeed =
+            isCrouching.Value ? crouchMoveSpeed : moveSpeed;
+
         Vector3 direction = new Vector3(
             moveInput.x,
             0f,
@@ -229,7 +320,7 @@ public class PlayerController : NetworkBehaviour
         direction = transform.TransformDirection(direction);
 
         controller.Move(
-            direction * moveSpeed * Time.deltaTime
+            direction * currentSpeed * Time.deltaTime
         );
 
         if (playerAnimator != null)
@@ -249,6 +340,7 @@ public class PlayerController : NetworkBehaviour
         float mouseY = lookInput.y * lookSensitivity;
 
         cameraPitch -= mouseY;
+
         cameraPitch = Mathf.Clamp(
             cameraPitch,
             -maxLookAngle,
@@ -261,8 +353,7 @@ public class PlayerController : NetworkBehaviour
 
     private void HandleAiming()
     {
-        bool isAiming =
-            inputActions.Player.Aim.IsPressed();
+        bool isAiming = inputActions.Player.Aim.IsPressed();
 
         if (playerAnimator != null)
             playerAnimator.SetBool("Aiming", isAiming);
@@ -283,11 +374,8 @@ public class PlayerController : NetworkBehaviour
 
     private void HandleShooting()
     {
-        if (weapon != null &&
-            inputActions.Player.Shoot.IsPressed())
-        {
+        if (weapon != null && inputActions.Player.Shoot.IsPressed())
             weapon.TryShoot();
-        }
     }
 
     private void HandleReload()
