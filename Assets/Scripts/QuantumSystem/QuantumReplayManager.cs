@@ -16,8 +16,6 @@ public class QuantumReplayManager : MonoBehaviour
     [SerializeField] private BankDoorUnlock bank1Door;
     [SerializeField] private BankDoorUnlock bank2Door;
 
-    private Transform activeSourceBank;
-
     [Header("Ghost")]
     [SerializeField] private GameObject ghostPlayerPrefab;
 
@@ -34,7 +32,11 @@ public class QuantumReplayManager : MonoBehaviour
     private ulong activeRescuedId = ulong.MaxValue;
 
     private NetworkObject activeGhost;
+
     private bool rescueInProgress;
+
+    // This stores the original bank of the rescued player.
+    private Transform activeSourceBank;
 
     private const float OriginalBankPoliceRadius = 150f;
 
@@ -59,7 +61,9 @@ public class QuantumReplayManager : MonoBehaviour
 
         if (rescueInProgress)
         {
-            Debug.LogWarning("QUANTUM: A rescue is already in progress.");
+            Debug.LogWarning(
+                "QUANTUM: A rescue is already in progress."
+            );
             return false;
         }
 
@@ -70,7 +74,9 @@ public class QuantumReplayManager : MonoBehaviour
             rescuedPlayerId, out var rescuedClient) ||
             rescuedClient.PlayerObject == null)
         {
-            Debug.LogError("QUANTUM: Rescued player not found.");
+            Debug.LogError(
+                "QUANTUM: Rescued player not found."
+            );
             return false;
         }
 
@@ -78,14 +84,19 @@ public class QuantumReplayManager : MonoBehaviour
             rescuerPlayerId, out var rescuerClient) ||
             rescuerClient.PlayerObject == null)
         {
-            Debug.LogError("QUANTUM: Rescuer not found.");
+            Debug.LogError(
+                "QUANTUM: Rescuer not found."
+            );
             return false;
         }
 
         if (!PlayerTimelineRecorder.TryGetRecorder(
-            rescuedPlayerId, out PlayerTimelineRecorder recorder))
+            rescuedPlayerId,
+            out PlayerTimelineRecorder recorder))
         {
-            Debug.LogError("QUANTUM: Rescued player's recorder not found.");
+            Debug.LogError(
+                "QUANTUM: Rescued player's recorder not found."
+            );
             return false;
         }
 
@@ -94,20 +105,43 @@ public class QuantumReplayManager : MonoBehaviour
 
         if (frames == null || frames.Count < 2)
         {
-            Debug.LogWarning("QUANTUM: Not enough recorded frames.");
+            Debug.LogWarning(
+                "QUANTUM: Not enough recorded frames."
+            );
             return false;
         }
 
+        // IMPORTANT:
+        // Determine the original bank using the rescued player's
+        // actual current position, NOT the rescuer's position.
+        Vector3 rescuedPlayerPosition =
+            rescuedClient.PlayerObject.transform.position;
+
+        float distanceToBank1 =
+            Vector3.Distance(rescuedPlayerPosition, bank1.position);
+
+        float distanceToBank2 =
+            Vector3.Distance(rescuedPlayerPosition, bank2.position);
+
         Transform sourceBank =
-            Vector3.Distance(recorder.transform.position, bank1.position) <
-            Vector3.Distance(recorder.transform.position, bank2.position)
+            distanceToBank1 <= distanceToBank2
                 ? bank1
                 : bank2;
 
-        activeSourceBank = sourceBank;
+        Debug.Log(
+            "QUANTUM BANK SELECTION: " +
+            "Rescued Player ID: " + rescuedPlayerId +
+            " | Bank 1 Distance: " + distanceToBank1 +
+            " | Bank 2 Distance: " + distanceToBank2 +
+            " | Selected Bank: " + sourceBank.name
+        );
 
+        // Spawn the ghost before starting the rescue.
         if (!SpawnGhost(frames, sourceBank, rescuedPlayerId))
             return false;
+
+        // Save the selected original bank for the entire rescue.
+        activeSourceBank = sourceBank;
 
         NetworkObject rescuedObject = rescuedClient.PlayerObject;
         NetworkObject rescuerObject = rescuerClient.PlayerObject;
@@ -140,55 +174,30 @@ public class QuantumReplayManager : MonoBehaviour
 
         Debug.Log(
             $"QUANTUM: Rescuer {rescuerPlayerId} entered tempBank. " +
-            $"Ghost replaying Player {rescuedPlayerId}."
+            $"Ghost replaying Player {rescuedPlayerId}. " +
+            $"Original bank: {activeSourceBank.name}"
         );
 
         return true;
     }
 
-    public void UnlockOriginalBankDoorForActiveRescue()
-    {
-        if (NetworkManager.Singleton == null ||
-            !NetworkManager.Singleton.IsServer)
-            return;
-
-        if (!rescueInProgress || activeSourceBank == null)
-        {
-            Debug.LogWarning(
-                "QUANTUM: No active rescued player's bank was identified."
-            );
-            return;
-        }
-
-        BankDoorUnlock originalDoor = null;
-
-        if (activeSourceBank == bank1)
-            originalDoor = bank1Door;
-        else if (activeSourceBank == bank2)
-            originalDoor = bank2Door;
-
-        if (originalDoor == null)
-        {
-            Debug.LogError(
-                "QUANTUM: Original bank door reference is missing."
-            );
-            return;
-        }
-
-        originalDoor.UnlockFromRescue();
-
-        Debug.Log(
-            "QUANTUM: Original bank door unlocked for rescued player."
-        );
-    }
-
     private bool ValidateReferences()
     {
-        if (bank1 == null || bank2 == null ||
-            tempBank == null || ghostPlayerPrefab == null)
+        if (bank1 == null ||
+            bank2 == null ||
+            tempBank == null ||
+            ghostPlayerPrefab == null)
         {
             Debug.LogError(
                 "QUANTUM: Assign bank1, bank2, tempBank and GhostPlayer."
+            );
+            return false;
+        }
+
+        if (bank1Door == null || bank2Door == null)
+        {
+            Debug.LogError(
+                "QUANTUM: Assign both Bank 1 Door and Bank 2 Door."
             );
             return false;
         }
@@ -207,7 +216,8 @@ public class QuantumReplayManager : MonoBehaviour
             sourceBank.InverseTransformPoint(firstFrame.position);
 
         Quaternion localRotation =
-            Quaternion.Inverse(sourceBank.rotation) * firstFrame.rotation;
+            Quaternion.Inverse(sourceBank.rotation) *
+            firstFrame.rotation;
 
         Vector3 spawnPosition =
             tempBank.TransformPoint(localPosition);
@@ -230,7 +240,8 @@ public class QuantumReplayManager : MonoBehaviour
         if (networkObject == null || replay == null)
         {
             Debug.LogError(
-                "QUANTUM: GhostPlayer needs NetworkObject and PlayerGhostReplay."
+                "QUANTUM: GhostPlayer needs NetworkObject " +
+                "and PlayerGhostReplay."
             );
 
             Destroy(ghost);
@@ -251,19 +262,68 @@ public class QuantumReplayManager : MonoBehaviour
         return true;
     }
 
+    // Called when the rescuer opens the TempBank door.
+    // Only the original bank of the rescued player is unlocked.
+    public void UnlockOriginalBankDoorForActiveRescue()
+    {
+        if (NetworkManager.Singleton == null ||
+            !NetworkManager.Singleton.IsServer)
+            return;
+
+        if (!rescueInProgress || activeSourceBank == null)
+        {
+            Debug.LogWarning(
+                "QUANTUM: No active original bank found for this rescue."
+            );
+            return;
+        }
+
+        BankDoorUnlock originalDoor = null;
+
+        if (activeSourceBank == bank1)
+        {
+            originalDoor = bank1Door;
+        }
+        else if (activeSourceBank == bank2)
+        {
+            originalDoor = bank2Door;
+        }
+
+        if (originalDoor == null)
+        {
+            Debug.LogError(
+                "QUANTUM: Could not find the original bank door."
+            );
+            return;
+        }
+
+        Debug.Log(
+            $"QUANTUM: Unlocking original bank door: " +
+            $"{originalDoor.name} for rescued player {activeRescuedId}"
+        );
+
+        originalDoor.UnlockFromRescue();
+    }
+
     // Called by PlayerGhostReplay after the final frame.
     public void OnGhostReplayCompleted()
     {
-        if (!NetworkManager.Singleton.IsServer || !rescueInProgress)
+        if (NetworkManager.Singleton == null ||
+            !NetworkManager.Singleton.IsServer ||
+            !rescueInProgress)
             return;
 
-        Debug.Log("QUANTUM: Ghost replay finished. Returning rescuer.");
+        Debug.Log(
+            "QUANTUM: Ghost replay finished. Returning rescuer."
+        );
 
         if (!NetworkManager.Singleton.ConnectedClients.TryGetValue(
             activeRescuerId, out var rescuerClient) ||
             rescuerClient.PlayerObject == null)
         {
-            Debug.LogError("QUANTUM: Could not find rescuer to return.");
+            Debug.LogError(
+                "QUANTUM: Could not find rescuer to return."
+            );
             return;
         }
 
@@ -295,37 +355,33 @@ public class QuantumReplayManager : MonoBehaviour
         if (activeGhost != null && activeGhost.IsSpawned)
             activeGhost.Despawn(true);
 
-        if (RescueManagerIsAvailable())
-        {
-            RescueManager manager = FindObjectOfType<RescueManager>();
+        RescueManager manager =
+            FindObjectOfType<RescueManager>();
 
-            if (manager != null)
-            {
-                manager.ResumeOriginalPoliceClientRpc(
-                    Bank1Position,
-                    Bank2Position,
-                    OriginalBankPoliceRadius
-                );
-            }
+        if (manager != null)
+        {
+            manager.ResumeOriginalPoliceClientRpc(
+                Bank1Position,
+                Bank2Position,
+                OriginalBankPoliceRadius
+            );
         }
 
-        activeSourceBank = null;
-
+        // Clear rescue information only after all rescue work is done.
         rescueInProgress = false;
+
         activeRescuerId = ulong.MaxValue;
         activeRescuedId = ulong.MaxValue;
+
         activeGhost = null;
+        activeSourceBank = null;
 
         RescueManager.CompleteRescueOnServer();
 
         Debug.Log(
-            "QUANTUM: Rescue session ended. Ready for another HELP request."
+            "QUANTUM: Rescue session ended. " +
+            "Ready for another HELP request."
         );
-    }
-
-    private bool RescueManagerIsAvailable()
-    {
-        return FindObjectOfType<RescueManager>() != null;
     }
 
     private void TeleportPlayer(
@@ -342,13 +398,17 @@ public class QuantumReplayManager : MonoBehaviour
         foreach (CharacterController cc in controllers)
             cc.enabled = false;
 
-        player.transform.SetPositionAndRotation(position, rotation);
+        player.transform.SetPositionAndRotation(
+            position,
+            rotation
+        );
 
         foreach (CharacterController cc in controllers)
             cc.enabled = true;
 
         Debug.Log(
-            $"QUANTUM: Player {player.OwnerClientId} teleported to {position}"
+            $"QUANTUM: Player {player.OwnerClientId} " +
+            $"teleported to {position}"
         );
     }
 
@@ -358,7 +418,9 @@ public class QuantumReplayManager : MonoBehaviour
         if (NetworkManager.Singleton == null ||
             !NetworkManager.Singleton.IsServer)
         {
-            Debug.LogWarning("QUANTUM: Run this test on the Host.");
+            Debug.LogWarning(
+                "QUANTUM: Run this test on the Host."
+            );
             return;
         }
 
@@ -367,19 +429,26 @@ public class QuantumReplayManager : MonoBehaviour
         if (!PlayerTimelineRecorder.TryGetRecorder(
             hostId, out PlayerTimelineRecorder recorder))
         {
-            Debug.LogWarning("QUANTUM: Host recorder not found.");
+            Debug.LogWarning(
+                "QUANTUM: Host recorder not found."
+            );
             return;
         }
 
         List<PlayerTimelineRecorder.TimelineFrame> frames =
             recorder.GetRecordedFrames();
 
-        if (frames.Count < 2 || !ValidateReferences())
+        if (frames == null ||
+            frames.Count < 2 ||
+            !ValidateReferences())
             return;
 
+        // Test mode uses the host's current position.
+        Vector3 hostPosition = recorder.transform.position;
+
         Transform sourceBank =
-            Vector3.Distance(recorder.transform.position, bank1.position) <
-            Vector3.Distance(recorder.transform.position, bank2.position)
+            Vector3.Distance(hostPosition, bank1.position) <=
+            Vector3.Distance(hostPosition, bank2.position)
                 ? bank1
                 : bank2;
 
