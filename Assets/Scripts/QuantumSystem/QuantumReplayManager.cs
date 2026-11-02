@@ -270,39 +270,39 @@ public class QuantumReplayManager : MonoBehaviour
             !NetworkManager.Singleton.IsServer)
             return;
 
-        if (!rescueInProgress || activeSourceBank == null)
+        if (!rescueInProgress)
         {
             Debug.LogWarning(
-                "QUANTUM: No active original bank found for this rescue."
+                "QUANTUM: No active rescue found."
             );
             return;
         }
 
-        BankDoorUnlock originalDoor = null;
-
-        if (activeSourceBank == bank1)
+        // Unlock Bank 1 door.
+        if (bank1Door != null)
         {
-            originalDoor = bank1Door;
+            bank1Door.UnlockFromRescue();
+            Debug.Log("QUANTUM: Bank 1 door unlocked.");
         }
-        else if (activeSourceBank == bank2)
+        else
         {
-            originalDoor = bank2Door;
+            Debug.LogError("QUANTUM: Bank 1 door reference missing.");
         }
 
-        if (originalDoor == null)
+        // Unlock Bank 2 door.
+        if (bank2Door != null)
         {
-            Debug.LogError(
-                "QUANTUM: Could not find the original bank door."
-            );
-            return;
+            bank2Door.UnlockFromRescue();
+            Debug.Log("QUANTUM: Bank 2 door unlocked.");
+        }
+        else
+        {
+            Debug.LogError("QUANTUM: Bank 2 door reference missing.");
         }
 
         Debug.Log(
-            $"QUANTUM: Unlocking original bank door: " +
-            $"{originalDoor.name} for rescued player {activeRescuedId}"
+            "QUANTUM: Both original bank doors unlocked through HELP rescue."
         );
-
-        originalDoor.UnlockFromRescue();
     }
 
     // Called by PlayerGhostReplay after the final frame.
