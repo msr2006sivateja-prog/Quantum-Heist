@@ -2365,19 +2365,6 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 917868259988453185, guid: 0812bcc60ee94074ca8fb5975b3c813d, type: 3}
   m_PrefabInstance: {fileID: 1710410258652366797}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &743360166
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 743360160}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3a1eebd7a03e2a844869f4db0cb8b4b7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::PlayerGhostReplay
-  ShowTopMostFoldoutHeaderGroup: 1
 --- !u!1 &755872487 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: -1249987373063862390, guid: d3d281272b6f25540af78f2afbc33aab, type: 3}
@@ -6690,10 +6677,7 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 917868259988453185, guid: 0812bcc60ee94074ca8fb5975b3c813d, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 743360166}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 0812bcc60ee94074ca8fb5975b3c813d, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
