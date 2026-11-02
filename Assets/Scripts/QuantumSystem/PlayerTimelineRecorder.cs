@@ -101,9 +101,9 @@ public class PlayerTimelineRecorder : NetworkBehaviour
             frames.Dequeue();
         }
 
-        Debug.Log(
+       /* Debug.Log(
             $"TIMELINE: Position = {transform.position} | Frames = {frames.Count}"
-        );
+        ); */
     }
 
     public static bool TryGetRecorder(

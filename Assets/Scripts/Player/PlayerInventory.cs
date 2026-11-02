@@ -1,16 +1,30 @@
 
 using UnityEngine;
+using Unity.Netcode;
 
-public class PlayerInventory : MonoBehaviour
+public class PlayerInventory : NetworkBehaviour
 {
-    public bool HasBankKey { get; private set; }
+    private readonly NetworkVariable<bool> hasBankKey =
+        new NetworkVariable<bool>(
+            false,
+            NetworkVariableReadPermission.Everyone,
+            NetworkVariableWritePermission.Server
+        );
+
+    public bool HasBankKey => hasBankKey.Value;
 
     public void CollectBankKey()
     {
-        if (HasBankKey)
+        if (!IsServer)
             return;
 
-        HasBankKey = true;
-        Debug.Log("Bank key added to inventory!");
+        if (hasBankKey.Value)
+            return;
+
+        hasBankKey.Value = true;
+
+        Debug.Log(
+            $"INVENTORY: Bank Key collected by Player {OwnerClientId}."
+        );
     }
 }
