@@ -466,8 +466,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BankLockerUnlock
   ShowTopMostFoldoutHeaderGroup: 1
-  lockerVisual: {fileID: 654077088}
-  additionalCylinder: {fileID: 869921079}
+  lockerVisual: {fileID: 476550578}
+  additionalCylinder: {fileID: 476550563}
   interactionDistance: 3
 --- !u!114 &113544174
 MonoBehaviour:
@@ -1095,6 +1095,11 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 5563905652069385415, guid: d3d281272b6f25540af78f2afbc33aab, type: 3}
+--- !u!1 &460501880 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -1310282192847067405, guid: d3d281272b6f25540af78f2afbc33aab, type: 3}
+  m_PrefabInstance: {fileID: 476550547}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &476550547
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1601,6 +1606,11 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1104149640}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &489249648 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: -1310282192847067405, guid: d3d281272b6f25540af78f2afbc33aab, type: 3}
+  m_PrefabInstance: {fileID: 1933651249}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &489845515
 GameObject:
   m_ObjectHideFlags: 0
@@ -4933,8 +4943,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BankLockerUnlock
   ShowTopMostFoldoutHeaderGroup: 1
-  lockerVisual: {fileID: 654077088}
-  additionalCylinder: {fileID: 869921079}
+  lockerVisual: {fileID: 1933651280}
+  additionalCylinder: {fileID: 1933651265}
   interactionDistance: 3
 --- !u!114 &1703975714
 MonoBehaviour:
@@ -5712,7 +5722,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BankDoorUnlock
   ShowTopMostFoldoutHeaderGroup: 1
-  doorVisual: {fileID: 1298740321}
+  doorVisual: {fileID: 489249648}
   interactionDistance: 4
   isTemporaryBankDoor: 1
 --- !u!114 &1884434422
@@ -6529,7 +6539,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BankDoorUnlock
   ShowTopMostFoldoutHeaderGroup: 1
-  doorVisual: {fileID: 1298740321}
+  doorVisual: {fileID: 460501880}
   interactionDistance: 4
   isTemporaryBankDoor: 0
 --- !u!114 &1969066460
@@ -6770,8 +6780,8 @@ MonoBehaviour:
   bank1: {fileID: 1782735188}
   bank2: {fileID: 476550548}
   tempBank: {fileID: 1933651250}
-  bank1Door: {fileID: 1023094221}
-  bank2Door: {fileID: 1969066459}
+  bank1Door: {fileID: 1969066459}
+  bank2Door: {fileID: 1023094221}
   ghostPlayerPrefab: {fileID: 743360160}
 --- !u!4 &2019862901
 Transform:
