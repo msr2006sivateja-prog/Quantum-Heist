@@ -207,6 +207,7 @@ public class QuantumReplayManager : MonoBehaviour
         return true;
     }
 
+    // Called by PlayerGhostReplay after the final frame.
     public void OnGhostReplayCompleted()
     {
         if (!NetworkManager.Singleton.IsServer || !rescueInProgress)
@@ -252,12 +253,11 @@ public class QuantumReplayManager : MonoBehaviour
 
         if (RescueManagerIsAvailable())
         {
-            RescueManager manager =
-                FindAnyObjectByType<RescueManager>();
+            RescueManager manager = FindObjectOfType<RescueManager>();
 
             if (manager != null)
             {
-                manager.ResumeOriginalPoliceRpc(
+                manager.ResumeOriginalPoliceClientRpc(
                     Bank1Position,
                     Bank2Position,
                     OriginalBankPoliceRadius
@@ -279,7 +279,7 @@ public class QuantumReplayManager : MonoBehaviour
 
     private bool RescueManagerIsAvailable()
     {
-        return FindAnyObjectByType<RescueManager>() != null;
+        return FindObjectOfType<RescueManager>() != null;
     }
 
     private void TeleportPlayer(

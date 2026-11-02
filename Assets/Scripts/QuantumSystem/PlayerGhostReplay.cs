@@ -115,14 +115,4 @@ public class PlayerGhostReplay : NetworkBehaviour
         transform.rotation =
             temporaryBank.rotation * localRotation;
     }
-
-        public override void OnNetworkSpawn()
-    {
-        Debug.Log(
-            $"GHOST SPAWNED | " +
-            $"LocalClient={NetworkManager.Singleton.LocalClientId} | " +
-            $"IsServer={IsServer} | " +
-            $"NetworkObjectID={NetworkObjectId}"
-        );
-    }
 }
